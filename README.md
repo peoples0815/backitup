@@ -1,28 +1,32 @@
-backitup
-=================
+# backitup
 
-Dies ist eine All in One - Backuplösung für IoBroker und Raspberrymatic. 
+Backitup ist eine Script Zusammenstellung zum zyklischen Sichern einer IoBroker / Homematic (Raspberrymatic) -Installation konfigurierbar in VIS 
 
-## License
-
-The MIT License (MIT)
-
-Copyright (c) 2018 peoples
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+## Inhaltsverzeichnis:
+1. Backup Typen
+  - 1.1 Minimales Backup (Standard IoBroker Backup)
+  - 1.2 Komplettes Backup
+  - 1.3 Raspberrymatic Backup (Homematic auf Raspberry)
+  - 1.4 Optionales Mysql-Backup (Localhost) 
+2. Vorbereitung
+  - 2.1 Vorbereitung für lftp / Cifs (wenn gewünscht)
+  - 2.2 Vorbereitungen für das Raspberrymatic - Backup
+  - 4.3 Vorbereitung IoBroker - Javascript Adapter
+3. Konfiguration
+  - 3.1 Konfigurationen für Minimal und Komplett Backup
+  - 3.2 Konfigurationen für Raspberrymatic Backup
+  - 3.3 Konfigurationen für Mysql-Datenbank Backup
+4. Verwendung
+  - 4.1 Der erste Druchlauf des JavaScripts
+  - 4.2 Verwendung des VIS-Widget-Exports
+5. Restore eines Backups
+  - 5.1 Minimal Backup wiederherstellen
+  - 5.2 Komplett Backup wiederherstellen
+  - 5.3 Raspberrymatic Backup wiederherstellen
+6. Fehlersuche
+  - 6.1 Logging aktivieren
+  - 6.2 Debugging aktivieren
+7. Bekannte Fehler / Lösungen
+  - 7.1 Webinterface nach Restore nicht erreichbar
+  - 7.2 JS-Datenbunkt nicht beschreibbar
+8. Todo

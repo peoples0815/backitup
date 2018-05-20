@@ -1,0 +1,425 @@
+// *******************************************************************************************************
+//
+// BackItUp - Script V2
+//
+//
+// Backuptypen: 1. Typisches Backup wie es der Befehl ./iobroker backup erstellt
+//              2. Großes Backup das den ganzen IoBroker Ordner inkl. aller Unterordner/Dateien Sichert 
+//              3. Raspberrymatic Backup durch Aufruf des Raspberrymatic Backup-Scripts
+//
+// Funktionen:  - Erstellen einen "OneClick" Sofort Backups
+//              - Automatisierte Backups je nach gewähltem Typ und Zeitstempel
+//              - Sicherung dieser Backups auf Remote-Server (lftp notwendig) alternativ CIFS
+//              - Optionales Sichern einer vorhandenen Mysql-Datenbank
+//
+//
+//
+// Changelog:
+// V1.0   - 22.12.2017  Automatisches Backupscript
+// V1.0.1 - 12.01.2018  Uploadmöglichkeit auf einen FTP-Server eingebaut
+//                      Hier wird die lftp-Funktion benutzt somit muss diese auch in Debian vorhanden sein!
+//                      lftp kann mit dem Befehl: apt-get install lftp installiert werden.
+//
+// v1.0.2 - 12.02.2018  Datenpunkt für letzten Backupdurchlauf eingepflegt.
+//
+// v2.0   - 09.03.2018  Schedule für komplettes Backup von 7mal/Woche auf 4 Termine im Monat geändert
+//                      Neue Funktionen:
+//                      - Automatisches Backup der Raspberrymatic über Vis möglich
+//                      - Verschieben des Raspberrymatic Backups in das Iobroker-BKP Verzeichnis
+//                      - Datum des letzten Backups für jeden Backup-Typ separiert
+//                      - OnClick-Sofort-Backup für jeden Typ eingepflegt
+//
+// V2.0.1 - 28.03.2018  Neue Funktionen:
+//                      - CIFS als Alternative zu lftp
+//                      - Optionales sichern vorhandener Mysql-Datenbanken
+//
+// V2.0.2 - 29.04.2018  If-Abfrage bei Clear-Schedule
+//                      Sekundenangabe bei Schedule da bei komplettem Backup immer wieder nichts passiert ist
+// V2.0.3 - 10.05.2018  Änderungen beim History anlegen
+// *******************************************************************************************************
+
+
+
+
+// -----------------------------------------------------------------------------
+// allgemeine Variablen
+// -----------------------------------------------------------------------------
+var logging = true;                                        // Logging on/off
+var debugging = true;										// Detailiertere Loggings
+var instanz = 'javascript.0';  instanz = instanz + '.';     // 
+                                                            //
+var pfad0 =   'System.Iobroker.Backup.';					// Pfad innerhalb der Instanz - Status allgemien
+
+
+var bash_script = 'bash /opt/iobroker/backitup.sh ';          // Pfad zu backup.sh Datei
+
+var anzahl_eintraege_history = 13;                          // Anzahl der Einträge in der History
+
+
+//  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//  !!!  Wichtig! Es dürfen keine Leerzeichen in dem Backup-Array sein wenn kein Eintrag benötigt wird  !!!
+//  !!!  nur '' verwenden!                                                                              !!!
+//  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+var Backup = [];                                        // Array für die Definition der Backuptypen und deren Details
+
+// Konfigurationen für das Standard-IoBroker Backup
+
+    Backup[0] = [];
+    Backup[0][0] = 'minimal';                           // Backup Typ (nicht verändern!)
+    Backup[0][1] = '';                                  // Names Zusatz, wird an den Dateinamen angehängt bspw. Master/Slave (falls gewünscht, ansonsten leer lassen) 
+    Backup[0][2] = '5';                                 // Alte Backups löschen nach X Tagen (falls gewünscht, ansonsten leer lassen)
+    Backup[0][3] = '';					// FTP-Host
+    Backup[0][4] = '';					// genaue Verzeichnissangabe bspw. /volume1/Backup/ auf FTP-Server (falls gewünscht, ansonsten leer lassen)
+    Backup[0][5] = '';					// Username für FTP Server - Verbindung
+    Backup[0][6] = '';					// Passwort für FTP Server - Verbindung
+    Backup[0][7] = '';                                  // Nicht benötigt bei diesem BKP-Typ (nicht verändern!)
+    Backup[0][8] = '';                                  // Nicht benötigt bei diesem BKP-Typ (nicht verändern!)
+    Backup[0][9] = 'NEIN';                              // Festlegen ob CIFS-Mount genutzt werden soll (JA/NEIN)
+
+
+// Konfigurationen für das Komplette-IoBroker Backup
+
+    Backup[1] = [];
+    Backup[1][0] = 'komplett';                          // Backup Typ (nicht verändern)
+    Backup[1][1] = '';                                  // Names Zusatz, wird an den Dateinamen angehängt bspw. Master/Slave (falls gewünscht, ansonsten leer lassen)
+    Backup[1][2] = '5';                                 // Alte Backups löschen nach X Tagen (falls gewünscht, ansonsten leer lassen)
+    Backup[1][3] = '';					// FTP-Host
+    Backup[1][4] = '';					// genaue Verzeichnissangabe bspw. /volume1/Backup/ auf FTP-Server (falls gewünscht, ansonsten leer lassen)
+    Backup[1][5] = '';					// Username für FTP Server - Verbindung
+    Backup[1][6] = '';					// Passwort für FTP Server - Verbindung
+    Backup[1][7] = '';                                  // Nicht benötigt bei diesem BKP-Typ (nicht verändern!)
+    Backup[1][8] = '';                                  // Nicht benötigt bei diesem BKP-Typ (nicht verändern!)
+    Backup[1][9] = 'NEIN';                              // Festlegen ob CIFS-Mount genutzt werden soll (JA/NEIN)
+
+
+// Konfiguration für das Raspberrymatic Backup
+
+    Backup[2] = [];
+    Backup[2][0] = 'raspberrymatic';                    // Backup Typ (nicht verändern)
+    Backup[2][1] = '';                                  // Nicht benötigt bei diesem BKP-Typ (nicht verändern!)
+    Backup[2][2] = '5';                                 // Alte Backups löschen nach X Tagen (falls gewünscht, ansonsten leer lassen)
+    Backup[2][3] = '';					// FTP-Host
+    Backup[2][4] = '';					// genaue Verzeichnissangabe bspw. /volume1/Backup/ auf FTP-Server (falls gewünscht, ansonsten leer lassen)
+    Backup[2][5] = '';					// Username für FTP Server - Verbindung
+    Backup[2][6] = '';					// Passwort für FTP Server - Verbindung
+    Backup[2][7] = '';					// IP-Adresse der Raspberrymatic
+    Backup[2][8] = '';					// SSH-Passwort der Raspberrymatic
+    Backup[2][9] = 'NEIN';                              // Festlegen ob CIFS-Mount genutzt werden soll (JA/NEIN)
+
+// Konfiguration für das MYSQL - Backup
+
+var Mysql_DBname = '';                                  // Name der Datenbank (wenn nicht verwendet leer lassen!)
+var Mysql_User = '';                                    // Benutzername für Datenbank (wenn nicht verwendet leer lassen!)
+var Mysql_PW = '';                                      // Passwort für Datenbank (wenn nicht verwendet leer lassen!)
+var Mysql_LN = '';                                      // DB-Backup löschen nach (wenn nicht verwendet leer lassen!)
+
+//#############################################################################
+//###                                                                       ###
+//###  Ab hier nichts mehr ändern alle Einstellungen sind oben zu tätigen   ###
+//###                                                                       ###
+//#############################################################################
+
+var Wochentage = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];       // Wochentage für die Backupeistellungen angelegt werden 
+                                                                                                    // (Mit Sonntag beginnen wegen Schedule)
+var BkpZeit_Schedule = [];                              // Array für die Backup Zeiten
+
+var Enum_ids =[];                                       // Array für die ID's die später in der enum.function erstellt werden
+
+ var history_array = [];                                // Array für das anlegen der Backup-Historie
+// =============================================================================
+// Objekte
+// =============================================================================
+// Objekt zur Prüfung ob Auto_Backup aktiv ist.
+createState(instanz + pfad0 + 'Auto_Backup', {def: 'false',type: 'boolean',name: 'Automatisches Backup'});
+
+// Neu in V2 Objekt zur Erstellung der enum.functions Einträge
+createState(instanz + pfad0 + 'Konfig_abgeschlossen', {def: 'false',type: 'boolean',name: 'Alle benoetigten Objekte erstellt'});
+
+// Neu in V2 Objekt zum Prüfen ob IoBroker wegen einem kompletten Backup neu gestartet ist.
+createState(instanz + pfad0 + 'IoRestart_komp_Bkp', {def: 'false',type: 'boolean',name: 'Restart IoBroker wegen komplett Backup'});
+
+//Neu in V2 Log für die ausgeführen Backups
+createState(instanz + pfad0 + 'Backup_history',  {def: 'Noch kein Backup', type: 'string', name: 'History der Backups'});
+
+//Neu in V2 einen separaten Zeitstempel für jeden Backuptyp
+createState(instanz + pfad0 + 'letztes_minimal_Backup',  {def: 'Noch kein Backup', type: 'string', name: 'Letztes minimal Backup'});
+createState(instanz + pfad0 + 'letztes_komplett_Backup',  {def: 'Noch kein Backup', type: 'string', name: 'Letztes komplett Backup'});
+createState(instanz + pfad0 + 'letztes_raspberrymatic_Backup',  {def: 'Noch kein Backup', type: 'string', name: 'Letztes raspberrymatic Backup'});
+
+//Neu in V2 ein jetzt Backup durchführen für jeden Backuptyp
+createState(instanz + pfad0 + 'start_minimal_Backup',  {def: 'false', type: 'boolean', name: 'Minimal Backup ausfuehren'});
+createState(instanz + pfad0 + 'start_komplett_Backup',  {def: 'false', type: 'boolean', name: 'Komplett Backup ausfuehren'});
+createState(instanz + pfad0 + 'start_raspberrymatic_Backup',  {def: 'false', type: 'boolean', name: 'Raspberrymatic Backup ausfuehren'});
+
+
+
+
+// $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+// $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+// $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+// $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+// #############################################################################
+// #                                                                           #
+// #  Funktion zum anlegen eines Schedules für Backupzeit                      #
+// #                                                                           #
+// #############################################################################
+
+function BackupStellen() {
+    setState(instanz + pfad0 +'Auto_Backup', false);
+    Backup.forEach(function(Bkp) {
+        if(Bkp[0] != 'komplett'){
+            Wochentage.forEach(function(Wochentag){
+                // -----------------------------------------------------------------------------
+                // Objekte in Abhänigkeit der Backups
+                // -----------------------------------------------------------------------------
+                // Objekte für AutoBackup Ein/Aus
+                createState(instanz + pfad0 + Bkp[0] +'.BackupState_'+Wochentag,  {def: 'false',type: 'boolean',name: 'Backup aktiviert '+Wochentag});
+               
+                // Objekte für BackupZeit
+                createState(instanz + pfad0 + Bkp[0] +'.BackupZeit_'+Wochentag,  {def: '02:00',type: 'string',name: 'Backup Zeit am '+Wochentag});
+                
+                if(!getState(instanz + pfad0 + 'Konfig_abgeschlossen').val) {
+                    Enum_ids.push(instanz + pfad0 + Bkp[0] +'.BackupState_'+Wochentag);
+                    Enum_ids.push(instanz + pfad0 + Bkp[0] +'.BackupZeit_'+Wochentag);
+                }           
+                
+                    if(getState(instanz + pfad0 + Bkp[0] + '.BackupZeit_'+Wochentag).val){
+                        var BkpZeit = getState(instanz + pfad0 + Bkp[0] + '.BackupZeit_'+Wochentag).val.split(':');
+                        
+                       
+                        if(getState(instanz + pfad0 + Bkp[0]+ '.BackupState_'+Wochentag).val === true){
+                            setState(instanz + pfad0 +'Auto_Backup', true);
+                            clearSchedule(BkpZeit_Schedule[Bkp[0]+'.'+Wochentag]);
+                            BkpZeit_Schedule[Bkp[0]+'.'+Wochentag] = schedule('10 '+BkpZeit[1]+ ' ' + BkpZeit[0] + ' * * '+ Wochentage.indexOf(Wochentag), function (){backup_erstellen(Bkp[0], Bkp[1], Bkp[2], Bkp[3], Bkp[4], Bkp[5], Bkp[6], Bkp[7], Bkp[8], Bkp[9], Mysql_DBname, Mysql_User, Mysql_PW, Mysql_LN)});
+                            if(logging) log('Automatisches Backup für '+Bkp[0]+' am '+Wochentag+' wurde auf '+BkpZeit[0]+': '+BkpZeit[1]+' Uhr aktiviert');
+                        }
+                        else{                                                               
+                             clearSchedule(BkpZeit_Schedule[Bkp[0]+'.'+Wochentag]);
+                            if(logging) log('Automatisches Backup für '+Bkp[0]+' am '+Wochentag+' wurde deaktiviert');
+                        }
+                    }
+                
+                
+            });
+        }
+        else{
+            createState(instanz + pfad0 + Bkp[0] +'.BackupState_Schedule_1',  {def: 'false',type: 'boolean',name: 'Backup aktiviert Schedule_1'});
+            createState(instanz + pfad0 + Bkp[0] +'.BackupState_Schedule_2',  {def: 'false',type: 'boolean',name: 'Backup aktiviert Schedule_2'});
+            createState(instanz + pfad0 + Bkp[0] +'.BackupState_Schedule_3',  {def: 'false',type: 'boolean',name: 'Backup aktiviert Schedule_3'});
+            createState(instanz + pfad0 + Bkp[0] +'.BackupState_Schedule_4',  {def: 'false',type: 'boolean',name: 'Backup aktiviert Schedule_4'});
+            
+            createState(instanz + pfad0 + Bkp[0] +'.BackupZeit_Schedule_1',  {def: '02:00',type: 'string',name: 'Backup Zeit fuer Schedule 1 '});
+            createState(instanz + pfad0 + Bkp[0] +'.BackupZeit_Schedule_2',  {def: '02:00',type: 'string',name: 'Backup Zeit fuer Schedule 2 '});
+            createState(instanz + pfad0 + Bkp[0] +'.BackupZeit_Schedule_3',  {def: '02:00',type: 'string',name: 'Backup Zeit fuer Schedule 3 '});
+            createState(instanz + pfad0 + Bkp[0] +'.BackupZeit_Schedule_4',  {def: '02:00',type: 'string',name: 'Backup Zeit fuer Schedule 4 '});
+            
+            createState(instanz + pfad0 + Bkp[0] +'.BackupTag_Schedule_1',  {def: '1',type: 'number',name: 'Backup Tag fuer Schedule 1 '});
+            createState(instanz + pfad0 + Bkp[0] +'.BackupTag_Schedule_2',  {def: '2',type: 'number',name: 'Backup Tag fuer Schedule 2 '});
+            createState(instanz + pfad0 + Bkp[0] +'.BackupTag_Schedule_3',  {def: '3',type: 'number',name: 'Backup Tag fuer Schedule 3 '});
+            createState(instanz + pfad0 + Bkp[0] +'.BackupTag_Schedule_4',  {def: '4',type: 'number',name: 'Backup Tag fuer Schedule 4 '});
+            
+            // -----------------------------------------------------------------------------
+            // Komplettes Backup - Schedule 1
+            // -----------------------------------------------------------------------------
+            if(getState(instanz + pfad0 + Bkp[0] +'.BackupState_Schedule_1').val === true) {
+                var BkpUhrZeit_Schedule1 = getState(instanz + pfad0 + Bkp[0] + '.BackupZeit_Schedule_1').val.split(':');
+                if(logging) log('Ein komplettes Backup wurde für '+getState(instanz + pfad0 + Bkp[0] +'.BackupZeit_Schedule_1').val+' Uhr am '+getState(instanz + pfad0 + Bkp[0] +'.BackupTag_Schedule_1').val+' Tag des Monats aktiviert');
+                if(BkpZeit_Schedule[Bkp[0]+'.Schedule_1']) clearSchedule(BkpZeit_Schedule[Bkp[0]+'.Schedule_1']);
+                BkpZeit_Schedule[Bkp[0]+'.Schedule_1'] = schedule('10 '+BkpUhrZeit_Schedule1[1] + ' ' + BkpUhrZeit_Schedule1[0] + ' '+getState(instanz + pfad0 + Bkp[0] +'.BackupTag_Schedule_1').val+' * * ', function (){backup_erstellen(Bkp[0], Bkp[1], Bkp[2], Bkp[3], Bkp[4], Bkp[5], Bkp[6], Bkp[7], Bkp[8], Bkp[9], Mysql_DBname, Mysql_User, Mysql_PW, Mysql_LN)});
+                if(logging) log('10 '+BkpUhrZeit_Schedule1[1] + ' ' + BkpUhrZeit_Schedule1[0] + ' '+getState(instanz + pfad0 + Bkp[0] +'.BackupTag_Schedule_1').val+' * * ');
+            } 
+            else{
+                if(logging) log ('Das komplette Backup wurde für '+getState(instanz + pfad0 + Bkp[0] +'.BackupZeit_Schedule_1').val+' Uhr am '+getState(instanz + pfad0 + Bkp[0] +'.BackupTag_Schedule_1').val+' Tag des Monats deaktiviert');
+                if(BkpZeit_Schedule[Bkp[0]+'.Schedule_1']) clearSchedule(BkpZeit_Schedule[Bkp[0]+'.Schedule_1']);
+            }
+            
+            // -----------------------------------------------------------------------------
+            // Komplettes Backup - Schedule 2
+            // -----------------------------------------------------------------------------
+            if(getState(instanz + pfad0 + Bkp[0] +'.BackupState_Schedule_2').val === true) {
+                var BkpUhrZeit_Schedule2 = getState(instanz + pfad0 + Bkp[0] + '.BackupZeit_Schedule_2').val.split(':');
+                if(logging) log('Ein komplettes Backup wurde für '+getState(instanz + pfad0 + Bkp[0] +'.BackupZeit_Schedule_2').val+' Uhr am '+getState(instanz + pfad0 + Bkp[0] +'.BackupTag_Schedule_2').val+' Tag des Monats aktiviert');
+                if(BkpZeit_Schedule[Bkp[0]+'.Schedule_2']) clearSchedule(BkpZeit_Schedule[Bkp[0]+'.Schedule_2']);
+                BkpZeit_Schedule[Bkp[0]+'.Schedule_2'] = schedule('10 '+BkpUhrZeit_Schedule2[1] + ' ' + BkpUhrZeit_Schedule2[0] + ' '+getState(instanz + pfad0 + Bkp[0] +'.BackupTag_Schedule_2').val+' * * ', function (){backup_erstellen(Bkp[0], Bkp[1], Bkp[2], Bkp[3], Bkp[4], Bkp[5], Bkp[6], Bkp[7], Bkp[8], Bkp[9], Mysql_DBname, Mysql_User, Mysql_PW, Mysql_LN)});
+                if(logging) log('10 '+BkpUhrZeit_Schedule2[1] + ' ' + BkpUhrZeit_Schedule2[0] + ' '+getState(instanz + pfad0 + Bkp[0] +'.BackupTag_Schedule_2').val+' * * ');            
+            } 
+            else{
+                if(logging) log ('Das komplette Backup wurde für '+getState(instanz + pfad0 + Bkp[0] +'.BackupZeit_Schedule_2').val+' Uhr am '+getState(instanz + pfad0 + Bkp[0] +'.BackupTag_Schedule_2').val+' Tag des Monats deaktiviert');
+                if(BkpZeit_Schedule[Bkp[0]+'.Schedule_2']) clearSchedule(BkpZeit_Schedule[Bkp[0]+'.Schedule_2']);
+            }
+            
+            // -----------------------------------------------------------------------------
+            // Komplettes Backup - Schedule 3
+            // -----------------------------------------------------------------------------
+            if(getState(instanz + pfad0 + Bkp[0] +'.BackupState_Schedule_3').val === true) {
+                var BkpUhrZeit_Schedule3 = getState(instanz + pfad0 + Bkp[0] + '.BackupZeit_Schedule_3').val.split(':');
+                if(logging) log('Ein komplettes Backup wurde für '+getState(instanz + pfad0 + Bkp[0] +'.BackupZeit_Schedule_3').val+' Uhr am '+getState(instanz + pfad0 + Bkp[0] +'.BackupTag_Schedule_3').val+' Tag des Monats aktiviert');
+                if(BkpZeit_Schedule[Bkp[0]+'.Schedule_3']) clearSchedule(BkpZeit_Schedule[Bkp[0]+'.Schedule_3']);
+                BkpZeit_Schedule[Bkp[0]+'.Schedule_3'] = schedule('10 '+BkpUhrZeit_Schedule3[1] + ' ' + BkpUhrZeit_Schedule3[0] + ' '+getState(instanz + pfad0 + Bkp[0] +'.BackupTag_Schedule_3').val+' * * ', function (){backup_erstellen(Bkp[0], Bkp[1], Bkp[2], Bkp[3], Bkp[4], Bkp[5], Bkp[6], Bkp[7], Bkp[8], Bkp[9], Mysql_DBname, Mysql_User, Mysql_PW, Mysql_LN)});
+                if(logging) log('10 '+BkpUhrZeit_Schedule3[1] + ' ' + BkpUhrZeit_Schedule3[0] + ' '+getState(instanz + pfad0 + Bkp[0] +'.BackupTag_Schedule_3').val+' * * ');
+            } 
+            else{
+                if(logging) log ('Das komplette Backup wurde für '+getState(instanz + pfad0 + Bkp[0] +'.BackupZeit_Schedule_3').val+' Uhr am '+getState(instanz + pfad0 + Bkp[0] +'.BackupTag_Schedule_3').val+' Tag des Monats deaktiviert');
+                if(BkpZeit_Schedule[Bkp[0]+'.Schedule_3']) clearSchedule(BkpZeit_Schedule[Bkp[0]+'.Schedule_3']);
+            }
+            
+            // -----------------------------------------------------------------------------
+            // Komplettes Backup - Schedule 4
+            // -----------------------------------------------------------------------------
+            if(getState(instanz + pfad0 + Bkp[0] +'.BackupState_Schedule_4').val === true) {
+                var BkpUhrZeit_Schedule4 = getState(instanz + pfad0 + Bkp[0] + '.BackupZeit_Schedule_4').val.split(':');
+                if(logging) log('Ein komplettes Backup wurde für '+getState(instanz + pfad0 + Bkp[0] +'.BackupZeit_Schedule_4').val+' Uhr am '+getState(instanz + pfad0 + Bkp[0] +'.BackupTag_Schedule_4').val+' Tag des Monats aktiviert');
+                if(BkpZeit_Schedule[Bkp[0]+'.Schedule_4']) clearSchedule(BkpZeit_Schedule[Bkp[0]+'.Schedule_4']);
+                BkpZeit_Schedule[Bkp[0]+'.Schedule_4'] = schedule('10 '+BkpUhrZeit_Schedule4[1] + ' ' + BkpUhrZeit_Schedule4[0] + ' '+getState(instanz + pfad0 + Bkp[0] +'.BackupTag_Schedule_4').val+' * * ', function (){backup_erstellen(Bkp[0], Bkp[1], Bkp[2], Bkp[3], Bkp[4], Bkp[5], Bkp[6], Bkp[7], Bkp[8], Bkp[9], Mysql_DBname, Mysql_User, Mysql_PW, Mysql_LN)});
+                if(logging) log('10 '+BkpUhrZeit_Schedule4[1] + ' ' + BkpUhrZeit_Schedule4[0] + ' '+getState(instanz + pfad0 + Bkp[0] +'.BackupTag_Schedule_4').val+' * * ');
+            } 
+            else{
+                if(logging) log ('Das komplette Backup wurde für '+getState(instanz + pfad0 + Bkp[0] +'.BackupZeit_Schedule_4').val+' Uhr am '+getState(instanz + pfad0 + Bkp[0] +'.BackupTag_Schedule_4').val+' Tag des Monats deaktiviert');
+                if(BkpZeit_Schedule[Bkp[0]+'.Schedule_4']) clearSchedule(BkpZeit_Schedule[Bkp[0]+'.Schedule_4']);
+            }
+            // -----------------------------------------------------------------------------
+            //  Erstellen der Aufzählungen für die Backupdatenpunkte
+            // -----------------------------------------------------------------------------
+            if(!getState(instanz + pfad0 + 'Konfig_abgeschlossen').val) {
+                Enum_ids.push(instanz + pfad0 + Bkp[0] +'.BackupState_Schedule_1');
+                Enum_ids.push(instanz + pfad0 + Bkp[0] +'.BackupState_Schedule_2');
+                Enum_ids.push(instanz + pfad0 + Bkp[0] +'.BackupState_Schedule_3');
+                Enum_ids.push(instanz + pfad0 + Bkp[0] +'.BackupState_Schedule_4');
+                
+                Enum_ids.push(instanz + pfad0 + Bkp[0] +'.BackupZeit_Schedule_1');
+                Enum_ids.push(instanz + pfad0 + Bkp[0] +'.BackupZeit_Schedule_2');
+                Enum_ids.push(instanz + pfad0 + Bkp[0] +'.BackupZeit_Schedule_3');
+                Enum_ids.push(instanz + pfad0 + Bkp[0] +'.BackupZeit_Schedule_4');
+                
+                Enum_ids.push(instanz + pfad0 + Bkp[0] +'.BackupTag_Schedule_1');
+                Enum_ids.push(instanz + pfad0 + Bkp[0] +'.BackupTag_Schedule_2');
+                Enum_ids.push(instanz + pfad0 + Bkp[0] +'.BackupTag_Schedule_3');
+                Enum_ids.push(instanz + pfad0 + Bkp[0] +'.BackupTag_Schedule_4');
+            }  
+        }
+    });
+    
+    if(!getState(instanz + pfad0 + 'Konfig_abgeschlossen').val) {
+        var Enum_obj = {};
+        Enum_obj.type = 'enum';
+        Enum_obj.common = {};
+        Enum_obj.common.name = 'BackItUp';
+        Enum_obj.common.members = Enum_ids;
+        setObject('enum.functions.BackItUp', Enum_obj);
+    }
+setState(instanz + pfad0 + 'Konfig_abgeschlossen', true);
+}
+
+// #############################################################################
+// #                                                                           #
+// #  Funktion zum Ausführen des Backups mit obigen Einstellungen              #
+// #                                                                           #
+// #############################################################################
+
+function backup_erstellen(typ, name, zeit, host, pfad, user, passwd, raspip, rasppw, cifsmnt, mysqldb, mysqlusr, mysqlpw, mysqlln) {
+    if(debugging) log(bash_script+'"'+typ+'|'+name+'|'+zeit+'|'+host+'|'+pfad+'|'+user+'|'+passwd+'|'+raspip+'|'+rasppw+'|'+cifsmnt+'|'+mysqldb+'|'+mysqlusr+'|'+mysqlpw+'|'+mysqlln+'"');
+
+    var ftp_bkp_u = 'Nein';
+    if(typ == 'komplett'){
+        setState(instanz + pfad0 + 'IoRestart_komp_Bkp', true);
+    }    
+    setState(instanz + pfad0 + 'letztes_'+typ+'_Backup', formatDate(new Date(), 'DD.MM.YYYY') +' um '+ formatDate(new Date(), 'hh:mm:ss')+' Uhr');
+    if(host !== '') ftp_bkp_u = 'Ja';
+    backup_history_anlegen(formatDate(new Date(), 'DD.MM.YYYY') +' um '+ formatDate(new Date(), 'hh:mm:ss')+' Uhr',typ,ftp_bkp_u);
+    
+
+
+    exec((bash_script+' "'+typ+'|'+name+'|'+zeit+'|'+host+'|'+pfad+'|'+user+'|'+passwd+'|'+raspip+'|'+rasppw+'|'+cifsmnt+'|'+mysqldb+'|'+mysqlusr+'|'+mysqlpw+'|'+mysqlln+'"'), function(err, stdout, stderr) {
+        if(logging){
+            if(err) log(stderr, 'error');
+            else log('exec: ' + stdout);
+        }
+    });
+}
+
+// #############################################################################
+// #                                                                           #
+// #  Backupdurchführung in History eintragen                                  #
+// #                                                                           #
+// #############################################################################
+
+function backup_history_anlegen(zeitstempel,typ,ftp_bkp_u) {
+     var history_liste = (getState(instanz + pfad0 + 'Backup_history').val);
+         history_array = history_liste.split('&nbsp;');
+     
+     
+     if(history_array.length >= anzahl_eintraege_history){
+        history_array.splice((anzahl_eintraege_history - 1),1);
+     }
+     history_array.unshift('<span class="bkptyp_'+ typ +'">' + zeitstempel + ' - Typ:' + typ + ' - Ftp-Sicherung:' + ftp_bkp_u + '</span>');
+     setState(instanz + pfad0 + 'Backup_history', history_array.join('&nbsp;'));
+}
+
+// #############################################################################
+// #                                                                           #
+// #  Stellen der Backupzeiten nach Neustart wegen Komplett-Backup             #
+// #                                                                           #
+// #############################################################################
+
+if(getState(instanz + pfad0 + 'IoRestart_komp_Bkp').val === true){
+    setStateDelayed(instanz + pfad0 + 'IoRestart_komp_Bkp', false, 5000);
+    BackupStellen();
+}
+
+// #############################################################################
+// #                                                                           #
+// #  Beim ersten Start alle benötigten Datenpunkte / Enum.funcitons erstellen #
+// #                                                                           #
+// #############################################################################
+
+if(!getObject('enum.functions.BackItUp') || !getObject(instanz + pfad0 + 'Konfig_abgeschlossen') || getState(instanz + pfad0 + 'Konfig_abgeschlossen').val === false) {
+    BackupStellen();
+}    
+
+// #############################################################################
+// #                                                                           #
+// #  Beobachten der drei One-Click-Backup Datenpunkte                         #
+// #  - Bei Aktivierung start des jeweiligen Backups                           #
+// #                                                                           #
+// #############################################################################
+on({id: instanz + pfad0 + 'start_minimal_Backup', change: "ne"}, function (dp) {
+    if(dp.state.val === true){
+        log('OneClick Minimal Backup gestartet');
+        backup_erstellen(Backup[0][0], Backup[0][1], Backup[0][2], Backup[0][3], Backup[0][4], Backup[0][5], Backup[0][6], Backup[0][7], Backup[0][8], Backup[0][9], Mysql_DBname, Mysql_User, Mysql_PW, Mysql_LN);
+        if(debugging)log('backup_erstellen('+Backup[0][0]+','+Backup[0][1]+','+Backup[0][2]+','+Backup[0][3]+','+Backup[0][4]+','+Backup[0][5]+','+Backup[0][6]+','+Backup[0][7]+','+Backup[0][8]+','+Backup[0][9]+','+Mysql_DBname+','+Mysql_User+','+Mysql_PW+','+Mysql_LN+')');
+        setStateDelayed(instanz + pfad0 + 'start_minimal_Backup', false, 20000);
+    }
+});
+on({id: instanz + pfad0 + 'start_komplett_Backup', change: "ne"}, function (dp) {
+    if(dp.state.val === true){
+        log('OneClick Komplett Backup gestartet');
+        backup_erstellen(Backup[1][0], Backup[1][1], Backup[1][2], Backup[1][3], Backup[1][4], Backup[1][5], Backup[1][6], Backup[1][7], Backup[1][8], Backup[1][9], Mysql_DBname, Mysql_User, Mysql_PW, Mysql_LN);
+        if(debugging)log('backup_erstellen('+Backup[1][0]+','+Backup[1][1]+','+Backup[1][2]+','+Backup[1][3]+','+Backup[1][4]+','+Backup[1][5]+','+Backup[1][6]+','+Backup[1][7]+','+Backup[1][8]+','+Backup[1][9]+','+Mysql_DBname+','+Mysql_User+','+Mysql_PW+','+Mysql_LN+')');
+        setStateDelayed(instanz + pfad0 + 'start_komplett_Backup', false, 5000);
+    }
+});   
+on({id: instanz + pfad0 + 'start_raspberrymatic_Backup', change: "ne"}, function (dp) {
+    if(dp.state.val === true){
+        log('OneClick Raspberrymatic Backup gestartet');
+        backup_erstellen(Backup[2][0], Backup[2][1], Backup[2][2], Backup[2][3], Backup[2][4], Backup[2][5], Backup[2][6], Backup[2][7], Backup[2][8], Backup[2][9], Mysql_DBname, Mysql_User, Mysql_PW, Mysql_LN);
+        if(debugging)log('backup_erstellen('+Backup[2][0]+','+Backup[2][1]+','+Backup[2][2]+','+Backup[2][3]+','+Backup[2][4]+','+Backup[2][5]+','+Backup[2][6]+','+Backup[2][7]+','+Backup[2][8]+','+Backup[2][9]+','+Mysql_DBname+','+Mysql_User+','+Mysql_PW+','+Mysql_LN+')');
+        setStateDelayed(instanz + pfad0 + 'start_raspberrymatic_Backup', false, 20000);
+    }
+});
+// #############################################################################
+// #                                                                           #
+// #  Beobachten aller Backupdatenpunkte                                       #
+// #                                                                           #
+// #############################################################################
+
+$('state(functions=BackItUp)').on(function(obj) {
+
+    BackupStellen();
+
+});
+
+
+
+

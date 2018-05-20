@@ -1,7 +1,7 @@
 backitup
 =================
 
-All in One - Backupl�sung
+Dies ist eine All in One - Backuplösung für IoBroker und Raspberrymatic. 
 
 ## License
 

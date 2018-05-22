@@ -62,7 +62,6 @@ Seit Version 2 ist es möglich alternativ euren vorhandenen Nas (o.Ä) mit Hilfe
     -	Wenn ein Mounten nicht möglich ist, wird kein Backup erstellt!
     -	„Alte Backups“ können automatisiert auf dem Nas gelöscht werden. Im schlimmsten Fall ist somit kein Backup mehr vorhanden wenn ihr es benötigt.
 
-![architecture](img/putty.png)
  (Bild 1)
 
 2.	Wer das Raspberrymatic-Backup verwenden / ausführen möchte muss sicherstellen dass das sshpass-Paket installiert ist. Sofern nicht vorhanden kann dieses Paket ebenfalls in der Konsole (für Debian) mit dem Befehl: „sudo apt-get install sshpass“  installiert werden.

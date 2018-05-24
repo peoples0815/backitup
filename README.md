@@ -26,7 +26,7 @@ Backitup ist eine Script Zusammenstellung zum zyklischen Sichern einer IoBroker 
 6. Fehlersuche
    - 6.1 Logging aktivieren
    - 6.2 Debugging aktivieren
-7. Bekannte Fehler / Lösungen
+7. Aufgetretene Fehler / Lösungen
    - 7.1 Webinterface nach Restore nicht erreichbar
    - 7.2 JS-Datenbunkt nicht beschreibbar
 8. Todo
@@ -78,3 +78,96 @@ Seit Version 2 ist es möglich alternativ euren vorhandenen Nas (o.Ä) mit Hilfe
 6.	Das BackItUp - Java-Script aus dem Beitrag unter einem beliebigen Namen im IoBroker  bei Skripte abspeichern (nicht unter global). 
 
 7.	Für die spätere Konfiguration durch VIS muss nun noch der View-Export in euer Projekt importiert werden.
+
+## 5. Konfiguration:
+
+Wenn alles wie beschrieben durchgeführt wurde müssen die nötigen Konfigurationen im Kopf des JavaScripts getätigt werden.
+Es dürfen keine Leerzeichen eingetragen werden  wenn keine Eingabe getätigt werden muss einfach die zwei Anführungszeichen/Hochkommas ohne Inhalt stehen lassen.
+
+1.	Folgende Daten müssen bei den IoBroker Backup Typen (minimal/komplett)  von euch eingetragen werden und richtig sein:
+    - Backup[0][1] → Namenszusatz 	
+(Wird in den Backup-Dateinamen eingefügt, wenn nicht gewünscht leer lassen!)
+    - Backup[0][2] → Tage-Angabe nach denen erstellte Backups  gelöscht werden sollen
+    - Backup[0][3] → IP-Adresse eures FTP-Servers 	(Wenn FTP verwendet)
+    - Backup[0][4] → Zielverzeichnis auf dem FTP	(Wenn FTP verwendet)
+    - Backup[0][5] → FTP – Username			(Wenn FTP verwendet)
+    - Backup[0][6] → FTP – Passwort			(Wenn FTP verwendet )
+    - Backup[0][9] → CIFS-Mount  	(Standard „NEIN“ wenn gewünscht auf „JA“)
+Ein aktivieren dieser Option schließt zeitgleich die Verwendung der FTP Funktion aus!
+
+2.	Folgende Daten müssen für das optionale Raspberrymatic  (Homematic auf Raspberry) von euch eingetragen werden und richtig sein sofern ihr dieses nutzen möchtet:
+    - Backup[0][2] → Tage-Angabe nach denen Backups gelöscht werden sollen
+    - Backup[0][3] → IP-Adresse eures FTP-Servers 	(Wenn FTP verwendet)
+    - Backup[0][4] → Zielverzeichnis auf dem FTP	(Wenn FTP verwendet)
+    - Backup[0][5] → FTP – Username			(Wenn FTP verwendet)
+    - Backup[0][6] → FTP – Passwort			(Wenn FTP verwendet)
+    - Backup[0][7] → IP-Adresse der Raspberrymatic 
+    - Backup[0][8] → SSH-Passwort Raspberrymatic 
+    - Backup[0][9] → CIFS-Mount  	(Standard „NEIN“ wenn gewünscht auf „JA“)
+    - Ein aktivieren dieser Option schließt zeitgleich die Verwendung der FTP Funktion aus!
+
+3.	Folgende Daten müssen für das optioale MYSQL-Backup  von euch eingetragen werden und richtig sein sofern ihr dieses nutzen möchtet:
+    - Mysql_DBname → Name der Datenbank
+    - Mysql_User → Username für die Datenbank
+    - Mysql_PW → Passwort der Datenbank
+    - Mysql_LN → Tage-Angabe nach denen erstellte Backups gelöscht werden sollen
+
+## 6. Verwendung:
+
+1.	Beim ersten Durchlauf  werden im Log „Warnings“ und „Error“ aufgelistet was nur  beim ersten Durchlauf normal ist. Dies kommt daher dass die Datenpunkte die im Nachgang abgefragt werden noch nicht vorhanden sind. Danach sollte das nicht mehr vorkommen.
+
+2.	Alle Funktionen wie Backup – Tage / Uhrzeiten, das Aktivieren oder Deaktivieren, sowie ein Backup sofort ausführen ist komplett über VIS einstellbar. Auf Anfrage habe ich auch noch eine kleine History eingefügt welcher zeigt wann welches Backup zuletzt durchgelaufen ist.
+
+Hier ein Screenshot vom VIS-Widget-Export:
+
+## 7. Restore:
+
+1. Restore eines minimalen / normalen IoBroker Backups: 
+    - Das Backup muss wie gewohnt im  Verzeichnis „opt/iobroker/backups/“ liegen 
+    - Es kann über die Konsole mit Hilfe des Befehls: „iobroker restore (Nummer des Backups aus der Liste)“ wieder hergestellt werden.  
+
+2. Restore eines kompletten Backups:
+    - Den Befehl:“sudo  iobroker stop“ über die Konsole ausführen
+    - Das erstellte Backup muss in das Verzeichnis  „root/“ kopiert werden
+    - Den Befehl:" sudo tar -xzvf Backupname.tar.gz -C / " über die Konsole ausführen
+    - Warten - Während der Wiederherstellung wird euch angezeigt was gerade gemacht wird
+    - Den Befehl: „sudo iobroker start“ über die Konsole ausführen 
+
+3. Restore eines raspberrymatic Backups:
+    - *.sbk Datei via SCP in das Verzeichnis „ /usr/local/tmp directory“ auf die Raspberrymatic  kopieren
+    - Über die Konsole  als Root-User  auf der Raspberrymatic einloggen
+    - Den Befehl: „/bin/restoreBackup.sh /user/local/tmp/EuerBackupDateiname“ auf der Raspberrymatic ausführen.
+    - Den Befehl:“reboot“ auf der Raspberrymatic ausführen um den PI neu zu starten
+
+Alternativ kann das Backup natürlich auch wie gewohnt über das Webinterface der Raspberrymatic wieder hergestellt werden.
+
+## 8. Fehlersuche:
+
+1. Im JavaScript gibt es die Möglichkeit logging auf true zu setzen so werden im Log verschiedene Meldungen (bspw. Backup-Zeiten und States) die zur Fehlersuche dienen können aufgelistet
+
+2. Zusätzlich gibt es die Möglichkeit debugging auf true zu setzen nun wird im Log der Befehl ausgegeben der an die backitup.sh übergeben wird. Dieser Befehl kann eins zu eins in die Konsole (mit Putty o.ä) eingegeben werden um Fehler eingrenzen zu können.
+
+## 9. Aufgetretene Fehler / Lösungen:
+
+Hier eine Liste der bisher aufgetretenen Probleme und deren Lösungen sofern vorhanden.
+
+1.	Olifall (aus dem Forum) hatte das Problem dass nach dem Restore das Webinterface des IoBrokers nicht mehr erreichbar war, durch folgende Schritte über die Konsole konnte er dies beheben:
+    - sudo iobroker status
+    - Meldung = "No connection to states 127.0.0.0:6379[redis]"
+    - sudo apt-get install redis-server
+
+2.	Beim Testen kam es bei Anderen vor dass einige Datenpunkte nicht beschreib /-änderbar waren, diesen Fehler konnte ich nicht nachstellen und dementsprechend nicht beheben.
+
+3.	Fehlermeldung: „Kommando nicht gefunden“ 
+Durch die Unterschiede von Unix und Windows, darf die backitup.sh nicht unter Windows (Editor) geändert werden. 
+Erklärung:
+Unter DOS wird in Textdateien ein Zeilenende durch die Sequenz return (Dezimalcode 13) und new line (Dezimalcode 10) dargestellt. Unix verwendet dagegen nur new line.
+
+## 9. Todo:
+
+Ein weiterer Schritt wird sein den Restore eines Iobroker-Backups auch auch über VIS durchführen zu können, zudem möchte ich aus dem Script früher oder später einen 
+IoBroker – Adapter machen. 
+
+## 10. Changelog:
+#2.0.3 (24.05.2018)
+ - Erste Version auf Github

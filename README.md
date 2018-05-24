@@ -30,9 +30,10 @@ Backitup ist eine Script Zusammenstellung zum zyklischen Sichern einer IoBroker 
    - 7.1 Webinterface nach Restore nicht erreichbar
    - 7.2 JS-Datenbunkt nicht beschreibbar
 8. Todo
+9. Changelog
 
 
-## 3. Backuptypen:
+## 1. Backuptypen:
 
 Das Backup-Script bietet drei (optional mit DB-Backup) verschiedene Backup-Aufrufe. Jedes Backup wird standardmäßig im Verzeichnis /opt/iobroker/backups/ abgelegt. Optional kann ein FTP-Upload eingerichtet werden, zudem gibt es seit dieser Version die Möglichkeit einen CIFS-Mount ein zu richten.
 
@@ -46,7 +47,7 @@ Im Zuge dieses Backups wird IoBroker neu gestartet!
 4. Mysql-Backup
    - Dieses separat einstellbare Backup wird sofern es aktiviert ist, bei jedem zyklisch eingestellten Backup egal ob „minimal“ oder „komplett“ erstellt und nach Ablauf der angegebenen Vorhaltezeit auch gelöscht. FTP oder CIFS sind für dieses Backup ebenfalls gültig sofern bei den IoBroker-Backup-Typen eingestellt.
 
-## 4. Vorbereitung:
+## 2. Vorbereitung:
 
 Folgende Schritte müssen durchgeführt werden um das automatische Backup V2 verwenden zu können *(wenn das Backup-Script v1 verwendet wurde zuerst alle Datenpunkte löschen!)
 
@@ -79,7 +80,7 @@ Seit Version 2 ist es möglich alternativ euren vorhandenen Nas (o.Ä) mit Hilfe
 
 7.	Für die spätere Konfiguration durch VIS muss nun noch der View-Export in euer Projekt importiert werden.
 
-## 5. Konfiguration:
+## 3. Konfiguration:
 
 Wenn alles wie beschrieben durchgeführt wurde müssen die nötigen Konfigurationen im Kopf des JavaScripts getätigt werden.
 Es dürfen keine Leerzeichen eingetragen werden  wenn keine Eingabe getätigt werden muss einfach die zwei Anführungszeichen/Hochkommas ohne Inhalt stehen lassen.
@@ -112,7 +113,7 @@ Ein aktivieren dieser Option schließt zeitgleich die Verwendung der FTP Funktio
     - Mysql_PW → Passwort der Datenbank
     - Mysql_LN → Tage-Angabe nach denen erstellte Backups gelöscht werden sollen
 
-## 6. Verwendung:
+## 4. Verwendung:
 
 1.	Beim ersten Durchlauf  werden im Log „Warnings“ und „Error“ aufgelistet was nur  beim ersten Durchlauf normal ist. Dies kommt daher dass die Datenpunkte die im Nachgang abgefragt werden noch nicht vorhanden sind. Danach sollte das nicht mehr vorkommen.
 
@@ -120,7 +121,7 @@ Ein aktivieren dieser Option schließt zeitgleich die Verwendung der FTP Funktio
 
 Hier ein Screenshot vom VIS-Widget-Export:
 
-## 7. Restore:
+## 5. Restore:
 
 1. Restore eines minimalen / normalen IoBroker Backups: 
     - Das Backup muss wie gewohnt im  Verzeichnis „opt/iobroker/backups/“ liegen 
@@ -141,13 +142,13 @@ Hier ein Screenshot vom VIS-Widget-Export:
 
 Alternativ kann das Backup natürlich auch wie gewohnt über das Webinterface der Raspberrymatic wieder hergestellt werden.
 
-## 8. Fehlersuche:
+## 6. Fehlersuche:
 
 1. Im JavaScript gibt es die Möglichkeit logging auf true zu setzen so werden im Log verschiedene Meldungen (bspw. Backup-Zeiten und States) die zur Fehlersuche dienen können aufgelistet
 
 2. Zusätzlich gibt es die Möglichkeit debugging auf true zu setzen nun wird im Log der Befehl ausgegeben der an die backitup.sh übergeben wird. Dieser Befehl kann eins zu eins in die Konsole (mit Putty o.ä) eingegeben werden um Fehler eingrenzen zu können.
 
-## 9. Aufgetretene Fehler / Lösungen:
+## 7. Aufgetretene Fehler / Lösungen:
 
 Hier eine Liste der bisher aufgetretenen Probleme und deren Lösungen sofern vorhanden.
 
@@ -163,11 +164,11 @@ Durch die Unterschiede von Unix und Windows, darf die backitup.sh nicht unter Wi
 Erklärung:
 Unter DOS wird in Textdateien ein Zeilenende durch die Sequenz return (Dezimalcode 13) und new line (Dezimalcode 10) dargestellt. Unix verwendet dagegen nur new line.
 
-## 9. Todo:
+## 8. Todo:
 
 Ein weiterer Schritt wird sein den Restore eines Iobroker-Backups auch auch über VIS durchführen zu können, zudem möchte ich aus dem Script früher oder später einen 
 IoBroker – Adapter machen. 
 
-## 10. Changelog:
+## 9. Changelog:
 #2.0.3 (24.05.2018)
  - Erste Version auf Github

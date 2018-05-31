@@ -1,5 +1,5 @@
 # backitup
-
+![architecture](img/putty.jpg)
 Backitup ist eine Script Zusammenstellung zum zyklischen Sichern einer IoBroker / Homematic (Raspberrymatic) -Installation konfigurierbar in VIS 
 
 ## Inhaltsverzeichnis:

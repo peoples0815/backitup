@@ -68,7 +68,7 @@ Seit Version 2 ist es möglich alternativ euren vorhandenen Nas (o.Ä) mit Hilfe
 2.	Wer das Raspberrymatic-Backup verwenden / ausführen möchte muss sicherstellen dass das sshpass-Paket installiert ist. Sofern nicht vorhanden kann dieses Paket ebenfalls in der Konsole (für Debian) mit dem Befehl: „sudo apt-get install sshpass“  installiert werden.
 
 3.	Zusätzlich zu dem sshpass-Paket ist das aktivieren des SSH-Zugangs in der Raspberrymatic  (Homematic-Oberfläche) zwingend erforderlich. Hier den Haken bei SSH setzen, Passwort eintragen und speichern. Das Passwort muss ebenfalls im JavaScript eingetragen werden.
-<img src="https://github.com/peoples0815/backitup/blob/master/img/ssh-einstellung_homematic.jpg" align=center>
+<img src="https://github.com/peoples0815/backitup/blob/master/img/ssh-einstellungen_homematic.jpg" align=center>
 
   
 4.	Um das Script ausführen zu können müssen im IoBroker Javascript-Adapter die Hacken bei: Erlaube das Komando „setObject“  und Erlaube das Kommando „exec“ gesetzt sein (Bild 3).

@@ -174,5 +174,7 @@ IoBroker – Adapter machen.
 ## 9. Changelog:
 #2.0.3 (24.05.2018)
  - Erste Version auf Github
+
 #2.0.4 (31.05.2018)
- - Backupmöglichkeit für Homematic CCU und pivccu eingebunden
+ - (simatec) Backupmöglichkeit für Homematic-CCU und pivccu eingebunden
+ - (peoples) Anpassung des Javascripts wegen o.g. Ergänzungen

@@ -1,5 +1,5 @@
 # backitup
-![architecture](img/putty.jpg)
+
 Backitup ist eine Script Zusammenstellung zum zyklischen Sichern einer IoBroker / Homematic (Raspberrymatic) -Installation konfigurierbar in VIS 
 
 ## Inhaltsverzeichnis:
@@ -62,17 +62,18 @@ Seit Version 2 ist es möglich alternativ euren vorhandenen Nas (o.Ä) mit Hilfe
   - Nachteile:
     -	Wenn ein Mounten nicht möglich ist, wird kein Backup erstellt!
     -	„Alte Backups“ können automatisiert auf dem Nas gelöscht werden. Im schlimmsten Fall ist somit kein Backup mehr vorhanden wenn ihr es benötigt.
-
+<img src="https://github.com/peoples0815/backitup/tree/master/img/putty.jpg" align=center>
  (Bild 1)
 
 2.	Wer das Raspberrymatic-Backup verwenden / ausführen möchte muss sicherstellen dass das sshpass-Paket installiert ist. Sofern nicht vorhanden kann dieses Paket ebenfalls in der Konsole (für Debian) mit dem Befehl: „sudo apt-get install sshpass“  installiert werden.
 
 3.	Zusätzlich zu dem sshpass-Paket ist das aktivieren des SSH-Zugangs in der Raspberrymatic  (Homematic-Oberfläche) zwingend erforderlich. Hier den Haken bei SSH setzen, Passwort eintragen und speichern. Das Passwort muss ebenfalls im JavaScript eingetragen werden.
+<img src="https://github.com/peoples0815/backitup/tree/master/img/einstellung_homematic.jpg" align=center>
 
   
-4.	Um das Script ausführen zu können müssen im IoBroker Javascript-Adapter die Hacken bei: Erlaube das Komando „setObject“  und Erlaube das Kommando „exec“ gesetzt sein (Bild 2).
- 
-(Bild 2)
+4.	Um das Script ausführen zu können müssen im IoBroker Javascript-Adapter die Hacken bei: Erlaube das Komando „setObject“  und Erlaube das Kommando „exec“ gesetzt sein (Bild 3).
+<img src="https://github.com/peoples0815/backitup/tree/master/img/einstellungen_js-script_adapter.jpg" align=center>
+(Bild 3)
 
 5.	Das im Beitrag enthaltene Shell-Script muss in das IoBroker-Verzeichnis unter dem Namen backitup.sh gespeichert  (absoluter Pfad: /opt/iobroker/backitup.sh) und die Berechtigungen sollten auf 777 gesetzt werden. Bei mir läuft das Script mit Admin Rechten wenn ihr bei euch die nötigen Freigaben händisch einstellt ist dies jedoch nicht nötig.
 
@@ -120,6 +121,7 @@ Ein aktivieren dieser Option schließt zeitgleich die Verwendung der FTP Funktio
 2.	Alle Funktionen wie Backup – Tage / Uhrzeiten, das Aktivieren oder Deaktivieren, sowie ein Backup sofort ausführen ist komplett über VIS einstellbar. Auf Anfrage habe ich auch noch eine kleine History eingefügt welcher zeigt wann welches Backup zuletzt durchgelaufen ist.
 
 Hier ein Screenshot vom VIS-Widget-Export:
+<img src="https://github.com/peoples0815/backitup/tree/master/img/screenshot_vis-export.jpg" align=center>
 
 ## 5. Restore:
 
@@ -172,3 +174,5 @@ IoBroker – Adapter machen.
 ## 9. Changelog:
 #2.0.3 (24.05.2018)
  - Erste Version auf Github
+#2.0.4 (31.05.2018)
+ - Backupmöglichkeit für Homematic CCU und pivccu eingebunden

@@ -72,7 +72,7 @@ Seit Version 2 ist es möglich alternativ euren vorhandenen Nas (o.Ä) mit Hilfe
 
   
 4.	Um das Script ausführen zu können müssen im IoBroker Javascript-Adapter die Hacken bei: Erlaube das Komando „setObject“  und Erlaube das Kommando „exec“ gesetzt sein (Bild 3).
-<img src="https://github.com/peoples0815/backitup/blob/master/img/einstellungen_js-script_adapter.jpg" align=center>
+<img src="https://github.com/peoples0815/backitup/blob/master/img/ssh-einstellungen_js-script_adapter.jpg" align=center>
 (Bild 3)
 
 5.	Das im Beitrag enthaltene Shell-Script muss in das IoBroker-Verzeichnis unter dem Namen backitup.sh gespeichert  (absoluter Pfad: /opt/iobroker/backitup.sh) und die Berechtigungen sollten auf 777 gesetzt werden. Bei mir läuft das Script mit Admin Rechten wenn ihr bei euch die nötigen Freigaben händisch einstellt ist dies jedoch nicht nötig.

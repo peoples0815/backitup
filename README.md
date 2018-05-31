@@ -2,6 +2,8 @@
 
 Backitup ist eine Script Zusammenstellung zum zyklischen Sichern einer IoBroker / Homematic (Raspberrymatic) -Installation konfigurierbar in VIS 
 
+Hilfe und Fragen bitte hier: [Backitup im IoBroker-Forum](https://forum.iobroker.net/viewtopic.php?f=21&t=13874&hilit=backitup)  
+
 ## Inhaltsverzeichnis:
 1. Backup Typen
    - 1.1 Minimales Backup (Standard IoBroker Backup)

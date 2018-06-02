@@ -266,10 +266,10 @@ if [ $BKP_OK == "JA" ]; then
 
 			if [ $BKP_TYP == "raspberrymatic" ]; then
 
-				lftp -e 'cd '$NAS_DIR'/; mput homematic-raspi*'$datum_rasp-$stunde$minute'.sbk; bye' -u $NAS_USR,$NAS_PASS $NAS_HOST
+				lftp -e "mput -O $NAS_DIR /opt/iobroker/backups/homematic-raspi-*-$datum_rasp-$stunde$minute.sbk; bye" -u $NAS_USR,$NAS_PASS $NAS_HOST
 			elif [ $BKP_TYP == "ccu" ]; then
 
-			lftp -e "mput -O $NAS_DIR /opt/iobroker/$RASP_HOST'-CCU-backup_'$datum-$uhrzeit'.tar.sbk; bye" -u $NAS_USR,$NAS_PASS $NAS_HOST
+				lftp -e "mput -O $NAS_DIR /opt/iobroker/$RASP_HOST'-CCU-backup_'$datum-$uhrzeit'.tar.sbk; bye" -u $NAS_USR,$NAS_PASS $NAS_HOST
 
 			else
 				lftp -e 'cd '$NAS_DIR'/; put backupiobroker_'$BKP_TYP$NAME_ZUSATZ-$datum-$uhrzeit'.tar.gz; bye' -u $NAS_USR,$NAS_PASS $NAS_HOST

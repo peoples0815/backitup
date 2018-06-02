@@ -83,10 +83,7 @@ minute=`date +%M`
 if [ $CIFS_MNT == "JA" ]; then
 	echo Backup-Pfad auf CIFS mounten
 	sudo umount /opt/iobroker/backups
-	sudo mount -t cifs -o user=$NAS_USR,password=$NAS_PASS,rw,file_mode=0777,dir_mode=0777,vers=1.0 //$NAS_HOST/$NAS_DIR /opt/iobroker/backups
-	echo "--- CIFS-Server verbunden ---"
-else
-	echo "--- Backup-Pfad wurde nicht auf CIFS-Server verbunden ---"
+	sudo mount -t cifs -o user=$NAS_USR,password=$NAS_PASS,rw,file_mode=0777,dir_mode=0777,vers=1.0 //$NAS_HOST/$NAS_DIR /opt/iobroker/backups && echo success "--- CIFS-Server verbunden ---" || echo error "--- Backup-Pfad wurde nicht auf CIFS-Server verbunden ---"
 fi
 
 
@@ -294,10 +291,7 @@ fi
 if [ $CIFS_MNT == "JA" ]; then
 
 	Backup-Pfad auf CIFS umounten
-	sudo umount /opt/iobroker/backups
-	echo "--- Umount CIFS Server ---"
-else
-	echo "--- Backup-Pfad wurde nicht vom CIFS-Server getrennt ---"
+	sudo umount /opt/iobroker/backups && echo success "--- Umount CIFS Server ---" || echo error "--- Backup-Pfad wurde nicht vom CIFS-Server getrennt ---"
 fi
 
 

@@ -15,8 +15,10 @@
 # Version: 1.0.1 - Optionaler Upload auf FTP-Server
 # Version: 2.0   - Raspberrymatic-Backup mit eingebunden
 # Version: 2.0.1 - Optionale Verwendung von CIFS-Mount eingebunden
-#		   Iobroker Stop und Start bei Komplettbackup eingefügt
-# Version: 2.0.2 - Zusätzliches MYSQL-Backup inkl. upload auf FTP-Server
+#		   Iobroker Stop und Start bei Komplettbackup eingefÃ¼gt
+# Version: 2.0.2 - ZusÃ¤tzliches MYSQL-Backup inkl. upload auf FTP-Server
+# Version: 2.0.3 - Erste Version auf Github
+# Version: 2.0.4 - Backupmöglichkeit für Homematic-CCU und pivccu eingebunden
 #
 #
 # Verwendung:  bash backup.sh "Backup_Typ|Namens_Zusatz|Loeschen_nach_X_Tagen|NAS_Host|NAS_Verzeichnis|NAS_User|NAS_Passwort|Raspberrymatic-IP|Raspberrymatic-PW|CIFS_MNT|MYSQL_DBNAME|MYSQL_USR|MYSQL_PW|MYSQL_Loeschen_nach_X_Tagen"
@@ -49,15 +51,16 @@ MYSQL_DBNAME=${VAR[10]}
 MYSQL_USR=${VAR[11]}
 MYSQL_PW=${VAR[12]}
 MYSQL_LOESCHEN_NACH=${VAR[13]}
+CCU_USER=${VAR[14]}
 
 
 #Variable fuer optionales Weiterkopieren
 BKP_OK="NEIN"
 
-#Datum definieren für iobroker
+#Datum definieren fÃ¼r iobroker
 datum=`date +%Y_%m_%d`
 
-#Datum definieren für raspberrymatic
+#Datum definieren fÃ¼r raspberrymatic
 datum_rasp=`date +%Y-%m-%d`
 
 #Uhrzeit bestimmten
@@ -152,22 +155,60 @@ elif [ $BKP_TYP == "komplett" ]; then
 
 elif [ $BKP_TYP == "raspberrymatic" ]; then
 
-#	Tempor�res Backupverzeichnis auf Raspberry erstellen
+#	Temporäres Backupverzeichnis auf Raspberry erstellen
 	sshpass -p "$RASP_PASS" ssh root@$RASP_HOST mkdir -p /tmp/bkp
 
-#	Ansto�en des Raspberrymatic-Backups
+#	Anstoßen des Raspberrymatic-Backups
 	sshpass -p "$RASP_PASS" ssh root@$RASP_HOST /bin/createBackup.sh /tmp/bkp/
 
 #	Kopieren des Backups auf IoBroker Maschine
 	sshpass -p "$RASP_PASS" scp -r root@$RASP_HOST:/tmp/bkp/* /opt/iobroker/backups/
 
 
-#	Tempor�res Backupverzeichnis auf Raspberry leeren
+#	Temporäres Backupverzeichnis auf Raspberry leeren
 	sshpass -p "$RASP_PASS" ssh root@$RASP_HOST rm -r /tmp/bkp/*
 
 	echo --- Backup Erstellt ---
 	BKP_OK="JA"
+	
+############################################################################
+#									   #
+# Erstellen eines Backups der CCU2 / PIVCCU                                #
+#                                                                          #
+############################################################################
 
+elif [ $BKP_TYP == "ccu" ]; then
+
+# 	Meldung
+	echo --- Es wurde ein CCU - PIVCCU Backup gestartet ---
+
+	run=$0.lastrun
+ 
+# 	Homematic Login
+	wget --post-data '{"method":"Session.login","params":{"username":"'$CCU_USER'","password":"'$RASP_PASS'"}}' http://$RASP_HOST/api/homematic.cgi -O hm.login.response -q >$run 2>&1
+ 
+# 	Login-Pruefung
+	loginerror=`cat hm.login.response|cut -d "," -f3|awk '{print $2}'`
+	if [ "$loginerror" != "null}" ]; then
+		echo "Fehler beim Homematic-Login !"|tee -a $run
+		cat hm.login.response|grep message|cut -d '"' -f4|tee -a $run
+		exit 1
+	fi
+	sessionid=`cat hm.login.response|cut -d "," -f2|awk '{print $2}'|cut -d '"' -f2`
+ 
+# 	Backupdatei herunterladen
+	wget "http://$RASP_HOST/config/cp_security.cgi?sid=@$sessionid@&action=create_backup" -O /opt/iobroker/backups/$RASP_HOST-CCU-backup_$datum-$uhrzeit.tar.sbk -q >>$run 2>&1
+ 
+# 	Homematic Logout
+	wget --post-data '{"method":"Session.logout","params":{"_session_id_":"'$sessionid'"}}' http://$RASP_HOST/api/homematic.cgi -O hm.logout.response -q >>$run 2>&1
+ 
+# 	temp. Dateien loeschen
+	rm hm.login.response hm.logout.response >>$run 2>&1
+
+# 	Meldung 
+	echo --- Backup Erstellt ---
+	BKP_OK="JA"
+	
 else
 	echo "Kein gueltiger Backup Typ gewaehlt! Moegliche Auswahl: 'minimal', 'komplett' oder 'raspberrymatic'"
 fi
@@ -186,11 +227,14 @@ fi
 
 if [ $BKP_OK == "JA" ]; then
 	if [ -n "$BKP_LOESCHEN_NACH" ]; then
-#		Backups älter X Tage löschen
+#		Backups Ã¤lter X Tage lÃ¶schen
 		echo "--- Alte Backups entfernen ---"
 
 		if [ $BKP_TYP == "raspberrymatic" ]; then
 			find /opt/iobroker/backups -name "homematic-raspi*.sbk" -mtime +$BKP_LOESCHEN_NACH -exec rm '{}' \;
+			sleep 10
+		elif [ $BKP_TYP == "ccu" ]; then
+			find /opt/iobroker/backups -name "*.tar.sbk" -mtime +$BKP_LOESCHEN_NACH -exec rm '{}' \;
 			sleep 10
 		else
 			find /opt/iobroker/backups -name "backupiobroker_$BKP_TYP$NAME_ZUSATZ*.tar.gz" -mtime +$BKP_LOESCHEN_NACH -exec rm '{}' \;
@@ -213,7 +257,7 @@ if [ $BKP_OK == "JA" ]; then
 #			Verzeichnis wechseln
 			cd /opt/iobroker/backups/
 			ls
-#			Befehle wird mit lftp ausgef�hrt somit muss das instaliert sein! (debian apt-get install lftp)
+#			Befehle wird mit lftp ausgeführt somit muss das instaliert sein! (debian apt-get install lftp)
 
 			if [ -n "$MYSQL_DBNAME" ]; then
 				lftp -e 'cd '$NAS_DIR'/; put backupiobroker_mysql-$(date +"%d-%b-%Y")_$MYSQL_DBNAME_mysql_db.sql; bye' -u $NAS_USR,$NAS_PASS $NAS_HOST
@@ -223,6 +267,9 @@ if [ $BKP_OK == "JA" ]; then
 			if [ $BKP_TYP == "raspberrymatic" ]; then
 
 				lftp -e 'cd '$NAS_DIR'/; mput homematic-raspi*'$datum_rasp-$stunde$minute'.sbk; bye' -u $NAS_USR,$NAS_PASS $NAS_HOST
+			elif [ $BKP_TYP == "ccu" ]; then
+
+			lftp -e "mput -O $NAS_DIR /opt/iobroker/$RASP_HOST'-CCU-backup_'$datum-$uhrzeit'.tar.sbk; bye" -u $NAS_USR,$NAS_PASS $NAS_HOST
 
 			else
 				lftp -e 'cd '$NAS_DIR'/; put backupiobroker_'$BKP_TYP$NAME_ZUSATZ-$datum-$uhrzeit'.tar.gz; bye' -u $NAS_USR,$NAS_PASS $NAS_HOST

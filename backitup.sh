@@ -44,14 +44,14 @@ NAS_HOST=${VAR[3]}
 NAS_DIR=${VAR[4]}
 NAS_USR=${VAR[5]}
 NAS_PASS=${VAR[6]}
-RASP_HOST=${VAR[7]}
-RASP_PASS=${VAR[8]}
-CIFS_MNT=${VAR[9]}
-MYSQL_DBNAME=${VAR[10]}
-MYSQL_USR=${VAR[11]}
-MYSQL_PW=${VAR[12]}
-MYSQL_LOESCHEN_NACH=${VAR[13]}
-CCU_USER=${VAR[14]}
+CCU_USER=${VAR[7]}
+CCU_HOST=${VAR[8]}
+CCU_PASS=${VAR[9]}
+CIFS_MNT=${VAR[10]}
+MYSQL_DBNAME=${VAR[11]}
+MYSQL_USR=${VAR[12]}
+MYSQL_PW=${VAR[13]}
+MYSQL_LOESCHEN_NACH=${VAR[14]}
 
 
 #Variable fuer optionales Weiterkopieren
@@ -153,17 +153,17 @@ elif [ $BKP_TYP == "komplett" ]; then
 elif [ $BKP_TYP == "raspberrymatic" ]; then
 
 #	Temporäres Backupverzeichnis auf Raspberry erstellen
-	sshpass -p "$RASP_PASS" ssh root@$RASP_HOST mkdir -p /tmp/bkp
+	sshpass -p "$CCU_PASS" ssh root@$CCU_HOST mkdir -p /tmp/bkp
 
 #	Anstoßen des Raspberrymatic-Backups
-	sshpass -p "$RASP_PASS" ssh root@$RASP_HOST /bin/createBackup.sh /tmp/bkp/
+	sshpass -p "$CCU_PASS" ssh root@$CCU_HOST /bin/createBackup.sh /tmp/bkp/
 
 #	Kopieren des Backups auf IoBroker Maschine
-	sshpass -p "$RASP_PASS" scp -r root@$RASP_HOST:/tmp/bkp/* /opt/iobroker/backups/
+	sshpass -p "$CCU_PASS" scp -r root@$CCU_HOST:/tmp/bkp/* /opt/iobroker/backups/
 
 
 #	Temporäres Backupverzeichnis auf Raspberry leeren
-	sshpass -p "$RASP_PASS" ssh root@$RASP_HOST rm -r /tmp/bkp/*
+	sshpass -p "$CCU_PASS" ssh root@$CCU_HOST rm -r /tmp/bkp/*
 
 	echo --- Backup Erstellt ---
 	BKP_OK="JA"
@@ -182,7 +182,7 @@ elif [ $BKP_TYP == "ccu" ]; then
 	run=$0.lastrun
  
 # 	Homematic Login
-	wget --post-data '{"method":"Session.login","params":{"username":"'$CCU_USER'","password":"'$RASP_PASS'"}}' http://$RASP_HOST/api/homematic.cgi -O hm.login.response -q >$run 2>&1
+	wget --post-data '{"method":"Session.login","params":{"username":"'$CCU_USER'","password":"'$CCU_PASS'"}}' http://$CCU_HOST/api/homematic.cgi -O hm.login.response -q >$run 2>&1
  
 # 	Login-Pruefung
 	loginerror=`cat hm.login.response|cut -d "," -f3|awk '{print $2}'`
@@ -194,10 +194,10 @@ elif [ $BKP_TYP == "ccu" ]; then
 	sessionid=`cat hm.login.response|cut -d "," -f2|awk '{print $2}'|cut -d '"' -f2`
  
 # 	Backupdatei herunterladen
-	wget "http://$RASP_HOST/config/cp_security.cgi?sid=@$sessionid@&action=create_backup" -O /opt/iobroker/backups/$RASP_HOST-CCU-backup_$datum-$uhrzeit.tar.sbk -q >>$run 2>&1
+	wget "http://$CCU_HOST/config/cp_security.cgi?sid=@$sessionid@&action=create_backup" -O /opt/iobroker/backups/$CCU_HOST-CCU-backup_$datum-$uhrzeit.tar.sbk -q >>$run 2>&1
  
 # 	Homematic Logout
-	wget --post-data '{"method":"Session.logout","params":{"_session_id_":"'$sessionid'"}}' http://$RASP_HOST/api/homematic.cgi -O hm.logout.response -q >>$run 2>&1
+	wget --post-data '{"method":"Session.logout","params":{"_session_id_":"'$sessionid'"}}' http://$CCU_HOST/api/homematic.cgi -O hm.logout.response -q >>$run 2>&1
  
 # 	temp. Dateien loeschen
 	rm hm.login.response hm.logout.response >>$run 2>&1
@@ -266,7 +266,7 @@ if [ $BKP_OK == "JA" ]; then
 				lftp -e "mput -O $NAS_DIR /opt/iobroker/backups/homematic-raspi-*-$datum_rasp-$stunde$minute.sbk; bye" -u $NAS_USR,$NAS_PASS $NAS_HOST
 			elif [ $BKP_TYP == "ccu" ]; then
 
-				lftp -e "mput -O $NAS_DIR /opt/iobroker/$RASP_HOST'-CCU-backup_'$datum-$uhrzeit'.tar.sbk; bye" -u $NAS_USR,$NAS_PASS $NAS_HOST
+				lftp -e "mput -O $NAS_DIR /opt/iobroker/$CCU_HOST'-CCU-backup_'$datum-$uhrzeit'.tar.sbk; bye" -u $NAS_USR,$NAS_PASS $NAS_HOST
 
 			else
 				lftp -e 'cd '$NAS_DIR'/; put backupiobroker_'$BKP_TYP$NAME_ZUSATZ-$datum-$uhrzeit'.tar.gz; bye' -u $NAS_USR,$NAS_PASS $NAS_HOST

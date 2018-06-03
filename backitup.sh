@@ -21,7 +21,7 @@
 # Version: 2.0.4 - Backupmöglichkeit für Homematic-CCU und pivccu eingebunden
 #
 #
-# Verwendung:  bash backup.sh "Backup_Typ|Namens_Zusatz|Loeschen_nach_X_Tagen|NAS_Host|NAS_Verzeichnis|NAS_User|NAS_Passwort|Raspberrymatic-IP|Raspberrymatic-PW|CIFS_MNT|MYSQL_DBNAME|MYSQL_USR|MYSQL_PW|MYSQL_Loeschen_nach_X_Tagen"
+# Verwendung:  bash backup.sh "Backup_Typ|Namens_Zusatz|Loeschen_nach_X_Tagen|NAS_Host|NAS_Verzeichnis|NAS_User|NAS_Passwort|CCU-IP|CCU-USER|CCU-PW|CIFS_MNT|MYSQL_DBNAME|MYSQL_USR|MYSQL_PW|MYSQL_Loeschen_nach_X_Tagen"
 #
 #
 #
@@ -207,7 +207,7 @@ elif [ $BKP_TYP == "ccu" ]; then
 	BKP_OK="JA"
 	
 else
-	echo "Kein gueltiger Backup Typ gewaehlt! Moegliche Auswahl: 'minimal', 'komplett' oder 'raspberrymatic'"
+	echo "Kein gueltiger Backup Typ gewaehlt! Moegliche Auswahl: 'minimal', 'komplett', 'ccu' oder 'raspberrymatic'"
 fi
 
 
@@ -250,30 +250,28 @@ if [ $BKP_OK == "JA" ]; then
 	if [ $CIFS_MNT == "NEIN" ]; then
 		if [ -n "$NAS_HOST" ]; then
 #			Backup-Files via FTP kopieren
-			echo "--- Backup-File FTP-Upload ---"
+			echo "--- Backup-File FTP-Upload wird gestartet ---"
 #			Verzeichnis wechseln
 			cd /opt/iobroker/backups/
 			ls
 #			Befehle wird mit lftp ausgeführt somit muss das instaliert sein! (debian apt-get install lftp)
 
 			if [ -n "$MYSQL_DBNAME" ]; then
-				lftp -e 'cd '$NAS_DIR'/; put backupiobroker_mysql-$(date +"%d-%b-%Y")_$MYSQL_DBNAME_mysql_db.sql; bye' -u $NAS_USR,$NAS_PASS $NAS_HOST
+				lftp -e 'cd '$NAS_DIR'/; put backupiobroker_mysql-$(date +"%d-%b-%Y")_$MYSQL_DBNAME_mysql_db.sql; bye' -u $NAS_USR,$NAS_PASS $NAS_HOST && echo success "--- Backup-File wurde erfolgreich auf ein anderes Verzeichnis kopiert ---" || echo error "--- Backup-File wurde nicht auf ein anderes Verzeichnis kopiert ---"
 			fi
 
 
 			if [ $BKP_TYP == "raspberrymatic" ]; then
 
-				lftp -e "mput -O $NAS_DIR /opt/iobroker/backups/homematic-raspi-*-$datum_rasp-$stunde$minute.sbk; bye" -u $NAS_USR,$NAS_PASS $NAS_HOST
+				lftp -e "mput -O $NAS_DIR /opt/iobroker/backups/homematic-raspi-*-$datum_rasp-$stunde$minute.sbk; bye" -u $NAS_USR,$NAS_PASS $NAS_HOST && echo success "--- Backup-File wurde erfolgreich auf ein anderes Verzeichnis kopiert ---" || echo error "--- Backup-File wurde nicht auf ein anderes Verzeichnis kopiert ---"
 			elif [ $BKP_TYP == "ccu" ]; then
 
-				lftp -e "mput -O $NAS_DIR /opt/iobroker/$CCU_HOST'-CCU-backup_'$datum-$uhrzeit'.tar.sbk; bye" -u $NAS_USR,$NAS_PASS $NAS_HOST
+				lftp -e "mput -O $NAS_DIR /opt/iobroker/$CCU_HOST'-CCU-backup_'$datum-$uhrzeit'.tar.sbk; bye" -u $NAS_USR,$NAS_PASS $NAS_HOST && echo success "--- Backup-File wurde erfolgreich auf ein anderes Verzeichnis kopiert ---" || echo error "--- Backup-File wurde nicht auf ein anderes Verzeichnis kopiert ---"
 
 			else
-				lftp -e 'cd '$NAS_DIR'/; put backupiobroker_'$BKP_TYP$NAME_ZUSATZ-$datum-$uhrzeit'.tar.gz; bye' -u $NAS_USR,$NAS_PASS $NAS_HOST
+				lftp -e 'cd '$NAS_DIR'/; put backupiobroker_'$BKP_TYP$NAME_ZUSATZ-$datum-$uhrzeit'.tar.gz; bye' -u $NAS_USR,$NAS_PASS $NAS_HOST && echo success "--- Backup-File wurde erfolgreich auf ein anderes Verzeichnis kopiert ---" || echo error "--- Backup-File wurde nicht auf ein anderes Verzeichnis kopiert ---"
 
 			fi
-		else
-			echo "--- Backup-File wurde nicht auf ein anderes Verzeichnis kopiert ---"
 		fi
 	fi
 	BKP_OK="NEIN"

@@ -175,6 +175,7 @@ IoBroker – Adapter machen.
  - (peoples) Backup Zyklen geändert
  - (peoples) Schedule angepasst an neue Zyklen 
  - (peoples) Widget an Neuerungen angepasst
+ - (simatec) backitup.sh entfernen des reinen Rasp.-Backups
 
 #2.0.4 (31.05.2018)
  - (simatec) Backupmöglichkeit für Homematic-CCU und pivccu eingebunden

@@ -8,7 +8,7 @@ Hilfe und Fragen bitte hier: [Backitup im IoBroker-Forum](https://forum.iobroker
 1. Backup Typen
    - 1.1 Minimales Backup (Standard IoBroker Backup)
    - 1.2 Komplettes Backup
-   - 1.3 Raspberrymatic Backup (Homematic auf Raspberry)
+   - 1.3 CCU Backup (CCU-Original / pivCCU / Raspberrymatic)
    - 1.4 Optionales Mysql-Backup (Localhost) 
 2. Vorbereitung
    - 2.1 Vorbereitung für lftp / Cifs (wenn gewünscht)

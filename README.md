@@ -1,6 +1,6 @@
 # backitup
 
-Backitup ist eine Script Zusammenstellung zum zyklischen Sichern einer IoBroker / Homematic (Raspberrymatic) -Installation konfigurierbar in VIS 
+Backitup ist eine Script Zusammenstellung zum zyklischen Sichern einer IoBroker / Homematic -Installation konfigurierbar in VIS 
 
 Hilfe und Fragen bitte hier: [Backitup im IoBroker-Forum](https://forum.iobroker.net/viewtopic.php?f=21&t=13874&hilit=backitup)  
 
@@ -12,11 +12,11 @@ Hilfe und Fragen bitte hier: [Backitup im IoBroker-Forum](https://forum.iobroker
    - 1.4 Optionales Mysql-Backup (Localhost) 
 2. Vorbereitung
    - 2.1 Vorbereitung für lftp / Cifs (wenn gewünscht)
-   - 2.2 Vorbereitungen für das Raspberrymatic - Backup
+   - 2.2 Vorbereitungen für das CCU - Backup
    - 4.3 Vorbereitung IoBroker - Javascript Adapter
 3. Konfiguration
    - 3.1 Konfigurationen für Minimal und Komplett Backup
-   - 3.2 Konfigurationen für Raspberrymatic Backup
+   - 3.2 Konfigurationen für CCU Backup
    - 3.3 Konfigurationen für Mysql-Datenbank Backup
 4. Verwendung
    - 4.1 Der erste Druchlauf des JavaScripts
@@ -44,9 +44,9 @@ Das Backup-Script bietet drei (optional mit DB-Backup) verschiedene Backup-Aufru
 2. Komplettes Backup
    - Dieses Backup sichert den kompletten IoBroker Ordner inklusive aller Unterordner und deren Dateien samt Dateiberechtigungen. Hierbei sollte man die Dateigröße nicht aus dem Auge verlieren die jedes einzelne Backup hat, im Schnitt über 200MB. 
 Im Zuge dieses Backups wird IoBroker neu gestartet!
-3. Raspberrymatic Backup (Homematic)
-   -  Dieses Backup nutzt die seit Version 2.27.8.20170410 in Raspberrymatic  integrierte Möglichkeit Systembackups auch über die Konsole anstoßen zu können. Auch  die Ausführung dieses Backups kann durch VIS konfiguriert werden ohne dass man die Konsole dazu benötigt.
-4. Mysql-Backup
+3. CCU Backup (Homematic)
+   -  Seit Version 3 ist es möglich 3 verschidene Homematic Installationsvarianten (CCU-Original / pivCCU / Raspberrymatic) zu sichern. Auch die Ausführung dieses Backups kann durch VIS konfiguriert werden ohne dass man die Konsole dazu benötigt.
+4. Mysql-Backup (Localhost)
    - Dieses separat einstellbare Backup wird sofern es aktiviert ist, bei jedem zyklisch eingestellten Backup egal ob „minimal“ oder „komplett“ erstellt und nach Ablauf der angegebenen Vorhaltezeit auch gelöscht. FTP oder CIFS sind für dieses Backup ebenfalls gültig sofern bei den IoBroker-Backup-Typen eingestellt.
 
 ## 2. Vorbereitung:
@@ -67,19 +67,15 @@ Seit Version 2 ist es möglich alternativ euren vorhandenen Nas (o.Ä) mit Hilfe
 <img src="https://github.com/peoples0815/backitup/blob/master/img/putty.jpg" align=center>
  (Bild 1)
 
-2.	Wer das Raspberrymatic-Backup verwenden / ausführen möchte muss sicherstellen dass das sshpass-Paket installiert ist. Sofern nicht vorhanden kann dieses Paket ebenfalls in der Konsole (für Debian) mit dem Befehl: „sudo apt-get install sshpass“  installiert werden.
+2.	Seit Version 3 wird für das CCU-Backup (in den o.g. 3 Varianten) kein SSH Zugang mehr benötigt stattdessen wird für das Backup der Username und das Passwort der CCU (nicht mehr SSH) benötigt. Wer den SSH-Zugang sonst nicht nutzt sollte diesen aus Sicherheitsgründen deaktivieren.
 
-3.	Zusätzlich zu dem sshpass-Paket ist das aktivieren des SSH-Zugangs in der Raspberrymatic  (Homematic-Oberfläche) zwingend erforderlich. Hier den Haken bei SSH setzen, Passwort eintragen und speichern. Das Passwort muss ebenfalls im JavaScript eingetragen werden.
-<img src="https://github.com/peoples0815/backitup/blob/master/img/ssh-einstellungen_homematic.jpg" align=center>
-
-  
-4.	Um das Script ausführen zu können müssen im IoBroker Javascript-Adapter die Hacken bei: Erlaube das Komando „setObject“  und Erlaube das Kommando „exec“ gesetzt sein (Bild 3).
+3.	Um das Script ausführen zu können müssen im IoBroker Javascript-Adapter die Hacken bei: Erlaube das Komando „setObject“  und Erlaube das Kommando „exec“ gesetzt sein (Bild 3).
 <img src="https://github.com/peoples0815/backitup/blob/master/img/einstellungen_js-script_adapter.jpg" align=center>
 (Bild 3)
 
-5.	Das im Beitrag enthaltene Shell-Script muss in das IoBroker-Verzeichnis unter dem Namen backitup.sh gespeichert  (absoluter Pfad: /opt/iobroker/backitup.sh) und die Berechtigungen sollten auf 777 gesetzt werden. Bei mir läuft das Script mit Admin Rechten wenn ihr bei euch die nötigen Freigaben händisch einstellt ist dies jedoch nicht nötig.
+5.	Das im Beitrag enthaltene Shell-Script muss in das IoBroker-Verzeichnis unter dem Namen backitup.sh gespeichert  (absoluter Pfad: /opt/iobroker/backitup.sh) und die Berechtigungen sollten auf 777 gesetzt werden. Bei mir läuft das Script mit Admin Rechten wenn ihr bei euch die nötigen Freigaben händisch einstellt ist dies jedoch nicht nötig. Das Script darf nicht in einem Windows Editor bearbeitet werden, da sonst unter Umständen das Script nicht mehr fehlerfrei durchläuft
 
-6.	Das BackItUp - Java-Script aus dem Beitrag unter einem beliebigen Namen im IoBroker  bei Skripte abspeichern (nicht unter global). 
+6.	Das BackItUp - Java-Script aus dem Beitrag unter einem beliebigen Namen im IoBroker bei Skripte abspeichern (nicht unter global). 
 
 7.	Für die spätere Konfiguration durch VIS muss nun noch der View-Export in euer Projekt importiert werden.
 
@@ -88,26 +84,27 @@ Seit Version 2 ist es möglich alternativ euren vorhandenen Nas (o.Ä) mit Hilfe
 Wenn alles wie beschrieben durchgeführt wurde müssen die nötigen Konfigurationen im Kopf des JavaScripts getätigt werden.
 Es dürfen keine Leerzeichen eingetragen werden  wenn keine Eingabe getätigt werden muss einfach die zwei Anführungszeichen/Hochkommas ohne Inhalt stehen lassen.
 
-1.	Folgende Daten müssen bei den IoBroker Backup Typen (minimal/komplett)  von euch eingetragen werden und richtig sein:
+1.	Folgende Daten müssen bei den IoBroker Backup Typen (minimal[0]/komplett[1])  von euch eingetragen werden und richtig sein:
     - Backup[0][1] → Namenszusatz 	
 (Wird in den Backup-Dateinamen eingefügt, wenn nicht gewünscht leer lassen!)
-    - Backup[0][2] → Tage-Angabe nach denen erstellte Backups  gelöscht werden sollen
-    - Backup[0][3] → IP-Adresse eures FTP-Servers 	(Wenn FTP verwendet)
-    - Backup[0][4] → Zielverzeichnis auf dem FTP	(Wenn FTP verwendet)
-    - Backup[0][5] → FTP – Username			(Wenn FTP verwendet)
-    - Backup[0][6] → FTP – Passwort			(Wenn FTP verwendet )
-    - Backup[0][9] → CIFS-Mount  	(Standard „NEIN“ wenn gewünscht auf „JA“)
+    - Backup[0/1][2] → Tage-Angabe nach denen erstellte Backups  gelöscht werden sollen
+    - Backup[0/1][3] → IP-Adresse eures FTP-Servers 	(Wenn FTP verwendet)
+    - Backup[0/1][4] → Zielverzeichnis auf dem FTP	(Wenn FTP verwendet)
+    - Backup[0/1][5] → FTP – Username			(Wenn FTP verwendet)
+    - Backup[0/1][6] → FTP – Passwort			(Wenn FTP verwendet )
+    - Backup[0/1][10] → CIFS-Mount  	(Standard „NEIN“ wenn gewünscht auf „JA“)
 Ein aktivieren dieser Option schließt zeitgleich die Verwendung der FTP Funktion aus!
 
-2.	Folgende Daten müssen für das optionale Raspberrymatic  (Homematic auf Raspberry) von euch eingetragen werden und richtig sein sofern ihr dieses nutzen möchtet:
-    - Backup[0][2] → Tage-Angabe nach denen Backups gelöscht werden sollen
-    - Backup[0][3] → IP-Adresse eures FTP-Servers 	(Wenn FTP verwendet)
-    - Backup[0][4] → Zielverzeichnis auf dem FTP	(Wenn FTP verwendet)
-    - Backup[0][5] → FTP – Username			(Wenn FTP verwendet)
-    - Backup[0][6] → FTP – Passwort			(Wenn FTP verwendet)
-    - Backup[0][7] → IP-Adresse der Raspberrymatic 
-    - Backup[0][8] → SSH-Passwort Raspberrymatic 
-    - Backup[0][9] → CIFS-Mount  	(Standard „NEIN“ wenn gewünscht auf „JA“)
+2.	Folgende Daten müssen für das optionale CCU Backup von euch eingetragen werden und richtig sein sofern ihr dieses nutzen möchtet:
+    - Backup[2][2] → Tage-Angabe nach denen Backups gelöscht werden sollen
+    - Backup[2][3] → IP-Adresse eures FTP-Servers 	(Wenn FTP verwendet)
+    - Backup[2][4] → Zielverzeichnis auf dem FTP	(Wenn FTP verwendet)
+    - Backup[2][5] → FTP – Username			(Wenn FTP verwendet)
+    - Backup[2][6] → FTP – Passwort			(Wenn FTP verwendet)
+    - Backup[2][7] → IP-Adresse der CCU
+    - Backup[2][8] → Username der CCU                            
+    - Backup[2][9] → Passwort der CCU 
+    - Backup[2][10] → CIFS-Mount  	(Standard „NEIN“ wenn gewünscht auf „JA“)
     - Ein aktivieren dieser Option schließt zeitgleich die Verwendung der FTP Funktion aus!
 
 3.	Folgende Daten müssen für das optioale MYSQL-Backup  von euch eingetragen werden und richtig sein sofern ihr dieses nutzen möchtet:
@@ -118,9 +115,9 @@ Ein aktivieren dieser Option schließt zeitgleich die Verwendung der FTP Funktio
 
 ## 4. Verwendung:
 
-1.	Beim ersten Durchlauf  werden im Log „Warnings“ und „Error“ aufgelistet was nur  beim ersten Durchlauf normal ist. Dies kommt daher dass die Datenpunkte die im Nachgang abgefragt werden noch nicht vorhanden sind. Danach sollte das nicht mehr vorkommen.
+1.	Beim ersten Durchlauf  werden im Log „Warnings“ und evtl. „Error“ aufgelistet was nur  beim ersten Durchlauf normal ist. Dies kommt daher dass die Datenpunkte die im Nachgang abgefragt werden noch nicht vorhanden sind. Danach sollte das nicht mehr vorkommen.
 
-2.	Alle Funktionen wie Backup – Tage / Uhrzeiten, das Aktivieren oder Deaktivieren, sowie ein Backup sofort ausführen ist komplett über VIS einstellbar. Auf Anfrage habe ich auch noch eine kleine History eingefügt welcher zeigt wann welches Backup zuletzt durchgelaufen ist.
+2.	Alle Funktionen wie Backup – Zyklen / Uhrzeiten, das Aktivieren oder Deaktivieren, sowie ein Backup sofort ausführen ist komplett über VIS einstellbar. Auf Nachfrage habe ich auch noch eine kleine History eingefügt welcher zeigt wann welches Backup zuletzt durchgelaufen ist.
 
 Hier ein Screenshot vom VIS-Widget-Export:
 <img src="https://github.com/peoples0815/backitup/blob/master/img/screenshot_vis-export.jpg" align=center>
@@ -174,9 +171,14 @@ Ein weiterer Schritt wird sein den Restore eines Iobroker-Backups auch auch übe
 IoBroker – Adapter machen. 
 
 ## 9. Changelog:
-#2.0.3 (24.05.2018)
- - Erste Version auf Github
+#3.0 (09.06.2018)
+ - (peoples) Backup Zyklen geändert
+ - (peoples) Schedule angepasst an neue Zyklen 
+ - (peoples) Widget an Neuerungen angepasst
 
 #2.0.4 (31.05.2018)
  - (simatec) Backupmöglichkeit für Homematic-CCU und pivccu eingebunden
  - (peoples) Anpassung des Javascripts wegen o.g. Ergänzungen
+ 
+#2.0.3 (24.05.2018)
+ - Erste Version auf Github

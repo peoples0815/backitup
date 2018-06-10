@@ -44,8 +44,8 @@ NAS_HOST=${VAR[3]}
 NAS_DIR=${VAR[4]}
 NAS_USR=${VAR[5]}
 NAS_PASS=${VAR[6]}
-CCU_USER=${VAR[7]}
-CCU_HOST=${VAR[8]}
+CCU_HOST=${VAR[7]}
+CCU_USER=${VAR[8]}
 CCU_PASS=${VAR[9]}
 CIFS_MNT=${VAR[10]}
 MYSQL_DBNAME=${VAR[11]}
@@ -190,6 +190,7 @@ elif [ $BKP_TYP == "ccu" ]; then
 		echo "Fehler beim Homematic-Login !"|tee -a $run
 		cat hm.login.response|grep message|cut -d '"' -f4|tee -a $run
 		exit 1
+		echo "--- Fehler beim Homematic-Login ---"
 	fi
 	sessionid=`cat hm.login.response|cut -d "," -f2|awk '{print $2}'|cut -d '"' -f2`
  
@@ -266,7 +267,7 @@ if [ $BKP_OK == "JA" ]; then
 				lftp -e "mput -O $NAS_DIR /opt/iobroker/backups/homematic-raspi-*-$datum_rasp-$stunde$minute.sbk; bye" -u $NAS_USR,$NAS_PASS $NAS_HOST && echo success "--- Backup-File wurde erfolgreich auf ein anderes Verzeichnis kopiert ---" || echo error "--- Backup-File wurde nicht auf ein anderes Verzeichnis kopiert ---"
 			elif [ $BKP_TYP == "ccu" ]; then
 
-				lftp -e "mput -O $NAS_DIR /opt/iobroker/$CCU_HOST'-CCU-backup_'$datum-$uhrzeit'.tar.sbk; bye" -u $NAS_USR,$NAS_PASS $NAS_HOST && echo success "--- Backup-File wurde erfolgreich auf ein anderes Verzeichnis kopiert ---" || echo error "--- Backup-File wurde nicht auf ein anderes Verzeichnis kopiert ---"
+				lftp -e "mput -O $NAS_DIR /opt/iobroker/backups/$CCU_HOST'-CCU-backup_'$datum-$uhrzeit'.tar.sbk; bye" -u $NAS_USR,$NAS_PASS $NAS_HOST && echo success "--- Backup-File wurde erfolgreich auf ein anderes Verzeichnis kopiert ---" || echo error "--- Backup-File wurde nicht auf ein anderes Verzeichnis kopiert ---"
 
 			else
 				lftp -e 'cd '$NAS_DIR'/; put backupiobroker_'$BKP_TYP$NAME_ZUSATZ-$datum-$uhrzeit'.tar.gz; bye' -u $NAS_USR,$NAS_PASS $NAS_HOST && echo success "--- Backup-File wurde erfolgreich auf ein anderes Verzeichnis kopiert ---" || echo error "--- Backup-File wurde nicht auf ein anderes Verzeichnis kopiert ---"

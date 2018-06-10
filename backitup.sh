@@ -189,8 +189,8 @@ elif [ $BKP_TYP == "ccu" ]; then
 	if [ "$loginerror" != "null}" ]; then
 		echo "Fehler beim Homematic-Login !"|tee -a $run
 		cat hm.login.response|grep message|cut -d '"' -f4|tee -a $run
+		echo "--- Fehler beim Homematic-Login!! Details unter: $run ---"
 		exit 1
-		echo "--- Fehler beim Homematic-Login ---"
 	fi
 	sessionid=`cat hm.login.response|cut -d "," -f2|awk '{print $2}'|cut -d '"' -f2`
  

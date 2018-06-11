@@ -193,9 +193,13 @@ elif [ $BKP_TYP == "ccu" ]; then
 		exit 1
 	fi
 	sessionid=`cat hm.login.response|cut -d "," -f2|awk '{print $2}'|cut -d '"' -f2`
+	
+#	Homematic-Version auslesen
+	VER=$(wget -q -O - http://$CCU_HOST/api/backup/version.cgi)
+	ccuversion="${VER:8:7}"
  
 # 	Backupdatei herunterladen
-	wget "http://$CCU_HOST/config/cp_security.cgi?sid=@$sessionid@&action=create_backup" -O /opt/iobroker/backups/$CCU_HOST-CCU-backup_$datum-$uhrzeit.tar.sbk -q >>$run 2>&1
+	wget "http://$CCU_HOST/config/cp_security.cgi?sid=@$sessionid@&action=create_backup" -O $backupdir/Homematic-Backup-$ccuversion-$datum-$uhrzeit.tar.sbk -q >>$run 2>&1
  
 # 	Homematic Logout
 	wget --post-data '{"method":"Session.logout","params":{"_session_id_":"'$sessionid'"}}' http://$CCU_HOST/api/homematic.cgi -O hm.logout.response -q >>$run 2>&1

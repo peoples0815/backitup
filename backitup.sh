@@ -143,30 +143,6 @@ elif [ $BKP_TYP == "komplett" ]; then
 #	cd /opt/iobroker
 #	iobroker start
 	echo --- IoBroker gestartet ---
-
-############################################################################
-#									   #
-# Erstellen eines Backups der Raspberrymatic                               #
-#                                                                          #
-############################################################################
-
-elif [ $BKP_TYP == "raspberrymatic" ]; then
-
-#	Temporäres Backupverzeichnis auf Raspberry erstellen
-	sshpass -p "$CCU_PASS" ssh root@$CCU_HOST mkdir -p /tmp/bkp
-
-#	Anstoßen des Raspberrymatic-Backups
-	sshpass -p "$CCU_PASS" ssh root@$CCU_HOST /bin/createBackup.sh /tmp/bkp/
-
-#	Kopieren des Backups auf IoBroker Maschine
-	sshpass -p "$CCU_PASS" scp -r root@$CCU_HOST:/tmp/bkp/* /opt/iobroker/backups/
-
-
-#	Temporäres Backupverzeichnis auf Raspberry leeren
-	sshpass -p "$CCU_PASS" ssh root@$CCU_HOST rm -r /tmp/bkp/*
-
-	echo --- Backup Erstellt ---
-	BKP_OK="JA"
 	
 ############################################################################
 #									   #
@@ -212,7 +188,7 @@ elif [ $BKP_TYP == "ccu" ]; then
 	BKP_OK="JA"
 	
 else
-	echo "Kein gueltiger Backup Typ gewaehlt! Moegliche Auswahl: 'minimal', 'komplett', 'ccu' oder 'raspberrymatic'"
+	echo "Kein gueltiger Backup Typ gewaehlt! Moegliche Auswahl: 'minimal', 'komplett' oder 'ccu'"
 fi
 
 
@@ -232,10 +208,7 @@ if [ $BKP_OK == "JA" ]; then
 #		Backups Ã¤lter X Tage lÃ¶schen
 		echo "--- Alte Backups entfernen ---"
 
-		if [ $BKP_TYP == "raspberrymatic" ]; then
-			find /opt/iobroker/backups -name "homematic-raspi*.sbk" -mtime +$BKP_LOESCHEN_NACH -exec rm '{}' \;
-			sleep 10
-		elif [ $BKP_TYP == "ccu" ]; then
+		if [ $BKP_TYP == "ccu" ]; then
 			find /opt/iobroker/backups -name "*.tar.sbk" -mtime +$BKP_LOESCHEN_NACH -exec rm '{}' \;
 			sleep 10
 		else
@@ -265,11 +238,7 @@ if [ $BKP_OK == "JA" ]; then
 				lftp -e 'cd '$NAS_DIR'/; put backupiobroker_mysql-$(date +"%d-%b-%Y")_$MYSQL_DBNAME_mysql_db.sql; bye' -u $NAS_USR,$NAS_PASS $NAS_HOST && echo success "--- Backup-File wurde erfolgreich auf ein anderes Verzeichnis kopiert ---" || echo error "--- Backup-File wurde nicht auf ein anderes Verzeichnis kopiert ---"
 			fi
 
-
-			if [ $BKP_TYP == "raspberrymatic" ]; then
-
-				lftp -e "mput -O $NAS_DIR /opt/iobroker/backups/homematic-raspi-*-$datum_rasp-$stunde$minute.sbk; bye" -u $NAS_USR,$NAS_PASS $NAS_HOST && echo success "--- Backup-File wurde erfolgreich auf ein anderes Verzeichnis kopiert ---" || echo error "--- Backup-File wurde nicht auf ein anderes Verzeichnis kopiert ---"
-			elif [ $BKP_TYP == "ccu" ]; then
+			if [ $BKP_TYP == "ccu" ]; then
 
 				lftp -e "mput -O $NAS_DIR /opt/iobroker/backups/$CCU_HOST'-CCU-backup_'$datum-$uhrzeit'.tar.sbk; bye" -u $NAS_USR,$NAS_PASS $NAS_HOST && echo success "--- Backup-File wurde erfolgreich auf ein anderes Verzeichnis kopiert ---" || echo error "--- Backup-File wurde nicht auf ein anderes Verzeichnis kopiert ---"
 

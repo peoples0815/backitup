@@ -247,7 +247,7 @@ if [ $BKP_OK == "JA" ]; then
 
 			if [ $BKP_TYP == "ccu" ]; then
 
-				lftp -e "mput -O $NAS_DIR /opt/iobroker/backups/$CCU_HOST'-CCU-backup_'$datum-$uhrzeit'.tar.sbk; bye" -u $NAS_USR,$NAS_PASS $NAS_HOST && echo success "--- Backup-File wurde erfolgreich auf ein anderes Verzeichnis kopiert ---" || echo error "--- Backup-File wurde nicht auf ein anderes Verzeichnis kopiert ---"
+				lftp -e "mput -O $NAS_DIR /opt/iobroker/backups/Homematic-Backup-$ccuversion-$datum-$uhrzeit.tar.sbk; bye" -u $NAS_USR,$NAS_PASS $NAS_HOST && echo success "--- Backup-File wurde erfolgreich auf ein anderes Verzeichnis kopiert ---" || echo error "--- Backup-File wurde nicht auf ein anderes Verzeichnis kopiert ---"
 
 			else
 				lftp -e 'cd '$NAS_DIR'/; put backupiobroker_'$BKP_TYP$NAME_ZUSATZ-$datum-$uhrzeit'.tar.gz; bye' -u $NAS_USR,$NAS_PASS $NAS_HOST && echo success "--- Backup-File wurde erfolgreich auf ein anderes Verzeichnis kopiert ---" || echo error "--- Backup-File wurde nicht auf ein anderes Verzeichnis kopiert ---"

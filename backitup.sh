@@ -21,7 +21,7 @@
 # Version: 2.0.4 - Backupmöglichkeit für Homematic-CCU und pivccu eingebunden
 #
 #
-# Verwendung:  bash backup.sh "Backup_Typ|Namens_Zusatz|Loeschen_nach_X_Tagen|NAS_Host|NAS_Verzeichnis|NAS_User|NAS_Passwort|CCU-IP|CCU-USER|CCU-PW|CIFS_MNT|MYSQL_DBNAME|MYSQL_USR|MYSQL_PW|MYSQL_Loeschen_nach_X_Tagen"
+# Verwendung:  bash backup.sh "Backup_Typ|Namens_Zusatz|Loeschen_nach_X_Tagen|NAS_Host|NAS_Verzeichnis|NAS_User|NAS_Passwort|CCU-IP|CCU-USER|CCU-PW|CIFS_MNT|IOBROKER_RESTART|MYSQL_DBNAME|MYSQL_USR|MYSQL_PW|MYSQL_Loeschen_nach_X_Tagen"
 #
 #
 #
@@ -48,10 +48,11 @@ CCU_HOST=${VAR[7]}
 CCU_USER=${VAR[8]}
 CCU_PASS=${VAR[9]}
 CIFS_MNT=${VAR[10]}
-MYSQL_DBNAME=${VAR[11]}
-MYSQL_USR=${VAR[12]}
-MYSQL_PW=${VAR[13]}
-MYSQL_LOESCHEN_NACH=${VAR[14]}
+IOBROKER_RESTART=${VAR[11]}
+MYSQL_DBNAME=${VAR[12]}
+MYSQL_USR=${VAR[13]}
+MYSQL_PW=${VAR[14]}
+MYSQL_LOESCHEN_NACH=${VAR[15]}
 
 
 #Variable fuer optionales Weiterkopieren
@@ -122,11 +123,14 @@ if [ $BKP_TYP == "minimal" ]; then
 ############################################################################
 
 elif [ $BKP_TYP == "komplett" ]; then
+
 #	IoBroker stoppen
-	cd /opt/iobroker
-	sleep 10
-	iobroker stop
-	echo --- IoBroker gestoppt ---
+	if [ $IOBROKER_RESTART == "true" ]; then
+		cd /opt/iobroker
+		sleep 10
+		iobroker stop
+		echo --- IoBroker gestoppt ---
+	fi
 
 #	Ins ioBroker Verzeichnis wechseln um komplettes IoBroker Verzeichnis zu sichern
 	cd /opt
@@ -139,10 +143,13 @@ elif [ $BKP_TYP == "komplett" ]; then
 #	Backup umbenennen
 	mv /opt/$datum-$stunde*_komplett.tar.gz /opt/iobroker/backups/backupiobroker_komplett$NAME_ZUSATZ-$datum-$uhrzeit.tar.gz
 
- 	iobroker restart
-#	cd /opt/iobroker
-#	iobroker start
-	echo --- IoBroker gestartet ---
+# 	IoBroker neustarten
+	if [ $IOBROKER_RESTART == "true" ]; then
+ 		iobroker restart
+#		cd /opt/iobroker
+#		iobroker start
+		echo --- IoBroker gestartet ---
+	fi
 	
 ############################################################################
 #									   #

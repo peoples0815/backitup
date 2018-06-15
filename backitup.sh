@@ -239,19 +239,15 @@ if [ $BKP_OK == "JA" ]; then
 #			Verzeichnis wechseln
 			cd /opt/iobroker/backups/
 			ls
-#			Befehle wird mit lftp ausgeführt somit muss das instaliert sein! (debian apt-get install lftp)
 
 			if [ -n "$MYSQL_DBNAME" ]; then
-				lftp -e 'cd '$NAS_DIR'/; put backupiobroker_mysql-$(date +"%d-%b-%Y")_$MYSQL_DBNAME_mysql_db.sql; bye' -u $NAS_USR,$NAS_PASS $NAS_HOST && echo success "--- Backup-File wurde erfolgreich auf ein anderes Verzeichnis kopiert ---" || echo error "--- Backup-File wurde nicht auf ein anderes Verzeichnis kopiert ---"
+				curl -s --disable-epsv -v -T"/opt/iobroker/backups/backupiobroker_mysql-$(date +"%d-%b-%Y")_$MYSQL_DBNAME_mysql_db.sql" -u"$NAS_USR:'$NAS_PASS" "ftp://$NAS_HOST$NAS_DIR/" && echo success "--- Backup-File wurde erfolgreich auf ein anderes Verzeichnis kopiert ---" || echo error "--- Backup-File wurde nicht auf ein anderes Verzeichnis kopiert ---"
 			fi
 
 			if [ $BKP_TYP == "ccu" ]; then
-
-				lftp -e "mput -O $NAS_DIR /opt/iobroker/backups/Homematic-Backup-$ccuversion-$datum-$uhrzeit.tar.sbk; bye" -u $NAS_USR,$NAS_PASS $NAS_HOST && echo success "--- Backup-File wurde erfolgreich auf ein anderes Verzeichnis kopiert ---" || echo error "--- Backup-File wurde nicht auf ein anderes Verzeichnis kopiert ---"
-
+				curl -s --disable-epsv -v -T"/opt/iobroker/backups/Homematic-Backup-$ccuversion-$datum-$uhrzeit.tar.sbk" -u"$NAS_USR:'$NAS_PASS" "ftp://$NAS_HOST$NAS_DIR/" && echo success "--- Backup-File wurde erfolgreich auf ein anderes Verzeichnis kopiert ---" || echo error "--- Backup-File wurde nicht auf ein anderes Verzeichnis kopiert ---"
 			else
-				lftp -e 'cd '$NAS_DIR'/; put backupiobroker_'$BKP_TYP$NAME_ZUSATZ-$datum-$uhrzeit'.tar.gz; bye' -u $NAS_USR,$NAS_PASS $NAS_HOST && echo success "--- Backup-File wurde erfolgreich auf ein anderes Verzeichnis kopiert ---" || echo error "--- Backup-File wurde nicht auf ein anderes Verzeichnis kopiert ---"
-
+				curl -s --disable-epsv -v -T"/opt/iobroker/backups/backupiobroker_$BKP_TYP$NAME_ZUSATZ-$datum-$uhrzeit.tar.gz" -u"$NAS_USR:'$NAS_PASS" "ftp://$NAS_HOST$NAS_DIR/" && echo success "--- Backup-File wurde erfolgreich auf ein anderes Verzeichnis kopiert ---" || echo error "--- Backup-File wurde nicht auf ein anderes Verzeichnis kopiert ---"
 			fi
 		fi
 	fi

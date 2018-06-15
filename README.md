@@ -51,10 +51,10 @@ Im Zuge dieses Backups wird IoBroker neu gestartet!
 
 ## 2. Vorbereitung:
 
-Folgende Schritte müssen durchgeführt werden um das automatische Backup V2 verwenden zu können *(wenn das Backup-Script v1 verwendet wurde zuerst alle Datenpunkte löschen!)
+Folgende Schritte müssen durchgeführt werden um das automatische Backup V3 verwenden zu können *(wenn das Backup-Script v1 verwendet wurde zuerst alle Datenpunkte löschen!)
 
-1.	Wenn der mögliche FTP-Upload auf bspw. einen Nas gewünscht ist, und dies unter der Verwendung von lftp  passieren soll muss dieser Dienst installiert werden/sein. Sollte das noch nicht geschehen sein kann Dieser unter Debian in der Konsole durch den Befehl: 
-„sudo apt-get install lftp“ installiert werden (Bild 1). 
+1.	Wenn der mögliche FTP-Upload auf bspw. einen Nas gewünscht ist, wird der lftp-Dienst nicht mehr benötigt.
+
 Seit Version 2 ist es möglich alternativ euren vorhandenen Nas (o.Ä) mit Hilfe von CIFS in eure IoBroker – Dateistruktur zu mounten und das Backup direkt dort zu erstellen.
 
   - Vorteile:
@@ -92,7 +92,8 @@ Es dürfen keine Leerzeichen eingetragen werden  wenn keine Eingabe getätigt we
     - Backup[0/1][4] → Zielverzeichnis auf dem FTP	(Wenn FTP verwendet)
     - Backup[0/1][5] → FTP – Username			(Wenn FTP verwendet)
     - Backup[0/1][6] → FTP – Passwort			(Wenn FTP verwendet )
-    - Backup[0/1][10] → CIFS-Mount  	(Standard „NEIN“ wenn gewünscht auf „JA“)
+    - Backup[0/1][10] → CIFS-Mount  	(Standard „false“ wenn gewünscht auf „true“)
+    - Backup[1][11] → IoStart/Stop ob beim kompletten Backup der Iobroker gestoppt/gestartet werden soll  	(Standard „false“ wenn gewünscht auf „true“)  
 Ein aktivieren dieser Option schließt zeitgleich die Verwendung der FTP Funktion aus!
 
 2.	Folgende Daten müssen für das optionale CCU Backup von euch eingetragen werden und richtig sein sofern ihr dieses nutzen möchtet:
@@ -104,7 +105,7 @@ Ein aktivieren dieser Option schließt zeitgleich die Verwendung der FTP Funktio
     - Backup[2][7] → IP-Adresse der CCU
     - Backup[2][8] → Username der CCU                            
     - Backup[2][9] → Passwort der CCU 
-    - Backup[2][10] → CIFS-Mount  	(Standard „NEIN“ wenn gewünscht auf „JA“)
+    - Backup[2][10] → CIFS-Mount  	(Standard „false“ wenn gewünscht auf „true“)
     - Ein aktivieren dieser Option schließt zeitgleich die Verwendung der FTP Funktion aus!
 
 3.	Folgende Daten müssen für das optioale MYSQL-Backup  von euch eingetragen werden und richtig sein sofern ihr dieses nutzen möchtet:
@@ -165,12 +166,20 @@ Durch die Unterschiede von Unix und Windows, darf die backitup.sh nicht unter Wi
 Erklärung:
 Unter DOS wird in Textdateien ein Zeilenende durch die Sequenz return (Dezimalcode 13) und new line (Dezimalcode 10) dargestellt. Unix verwendet dagegen nur new line.
 
+2. Iobroker bleibt beim komplett-Backup hängen / startet nicht mehr
+Einige Benutzer berichteten dass das IoBroker komplett-Backup nicht richtig durchläuft bzw. der IoBroker gestoppt und nicht mehr gestartet wird. Seit V3 ist es möglich in den Konfigurations-Datenpunkten den Stop/Start des IoBrokers beim komplett-Backup zu steuern
+
 ## 8. Todo:
 
 Ein weiterer Schritt wird sein den Restore eines Iobroker-Backups auch auch über VIS durchführen zu können, zudem möchte ich aus dem Script früher oder später einen 
 IoBroker – Adapter machen. 
 
 ## 9. Changelog:
+#3.0.1
+ - (simatec) Ftp-Upload nun ohne lftp möglich
+ - (simatec) Iobroker k.Backup Stop/Start steuerbar in backitup.sh
+ - (peoples) JavaScript an obige Änderungen angepasst
+ - (peoples) Konfigurationseinstellungen in Datenpunkte ausgelagert
 #3.0 (09.06.2018)
  - (peoples) Backup Zyklen geändert
  - (peoples) Schedule angepasst an neue Zyklen 

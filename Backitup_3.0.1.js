@@ -269,19 +269,7 @@ setState(instanz + pfad0 + 'Konfiguration.Konfig_abgeschlossen', true);
 
 
 function backup_erstellen(typ, name, zeit, host, pfad, user, passwd, ccuip, ccuusr, ccupw, cifsmnt, bkpiors, mysqldb, mysqlusr, mysqlpw, mysqlln) {
-    if(cifsmnt === true){ 
-        cifsmnt = 'JA';         // Festlegen ob CIFS-Mount genutzt werden soll 
-    }
-    else{
-        cifsmnt = 'NEIN';       // Festlegen ob CIFS-Mount genutzt werden soll 
-    }    
-    if(bkpiors === true){ 
-        bkpiors = 'JA';         // Festlegen ob IoBroker gestoppt/gestartet wird 
-    }
-    else{
-        bkpiors = 'NEIN';       // Festlegen ob IoBroker gestoppt/gestartet wird 
-    }    
-    
+   
     if(debugging) log(bash_script+'"'+typ+'|'+name+'|'+zeit+'|'+host+'|'+pfad+'|'+user+'|'+passwd+'|'+ccuip+'|'+ccuusr+'|'+ccupw+'|'+cifsmnt+'|'+bkpiors+'|'+mysqldb+'|'+mysqlusr+'|'+mysqlpw+'|'+mysqlln+'"');
 
     if(typ == 'komplett' && bkpiors === true){

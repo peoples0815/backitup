@@ -241,13 +241,13 @@ if [ $BKP_OK == "JA" ]; then
 			ls
 
 			if [ -n "$MYSQL_DBNAME" ]; then
-				curl -s --disable-epsv -v -T"/opt/iobroker/backups/backupiobroker_mysql-$(date +"%d-%b-%Y")_$MYSQL_DBNAME_mysql_db.sql" -u"$NAS_USR:'$NAS_PASS" "ftp://$NAS_HOST$NAS_DIR/" && echo success "--- Backup-File wurde erfolgreich auf ein anderes Verzeichnis kopiert ---" || echo error "--- Backup-File wurde nicht auf ein anderes Verzeichnis kopiert ---"
+				curl -s --disable-epsv -v -T"/opt/iobroker/backups/backupiobroker_mysql-$(date +"%d-%b-%Y")_$MYSQL_DBNAME_mysql_db.sql" -u"$NAS_USR:$NAS_PASS" "ftp://$NAS_HOST$NAS_DIR/" && echo success "--- Backup-File wurde erfolgreich auf ein anderes Verzeichnis kopiert ---" || echo error "--- Backup-File wurde nicht auf ein anderes Verzeichnis kopiert ---"
 			fi
 
 			if [ $BKP_TYP == "ccu" ]; then
-				curl -s --disable-epsv -v -T"/opt/iobroker/backups/Homematic-Backup-$ccuversion-$datum-$uhrzeit.tar.sbk" -u"$NAS_USR:'$NAS_PASS" "ftp://$NAS_HOST$NAS_DIR/" && echo success "--- Backup-File wurde erfolgreich auf ein anderes Verzeichnis kopiert ---" || echo error "--- Backup-File wurde nicht auf ein anderes Verzeichnis kopiert ---"
+				curl -s --disable-epsv -v -T"/opt/iobroker/backups/Homematic-Backup-$ccuversion-$datum-$uhrzeit.tar.sbk" -u"$NAS_USR:$NAS_PASS" "ftp://$NAS_HOST$NAS_DIR/" && echo success "--- Backup-File wurde erfolgreich auf ein anderes Verzeichnis kopiert ---" || echo error "--- Backup-File wurde nicht auf ein anderes Verzeichnis kopiert ---"
 			else
-				curl -s --disable-epsv -v -T"/opt/iobroker/backups/backupiobroker_$BKP_TYP$NAME_ZUSATZ-$datum-$uhrzeit.tar.gz" -u"$NAS_USR:'$NAS_PASS" "ftp://$NAS_HOST$NAS_DIR/" && echo success "--- Backup-File wurde erfolgreich auf ein anderes Verzeichnis kopiert ---" || echo error "--- Backup-File wurde nicht auf ein anderes Verzeichnis kopiert ---"
+				curl -s --disable-epsv -v -T"/opt/iobroker/backups/backupiobroker_$BKP_TYP$NAME_ZUSATZ-$datum-$uhrzeit.tar.gz" -u"$NAS_USR:$NAS_PASS" "ftp://$NAS_HOST$NAS_DIR/" && echo success "--- Backup-File wurde erfolgreich auf ein anderes Verzeichnis kopiert ---" || echo error "--- Backup-File wurde nicht auf ein anderes Verzeichnis kopiert ---"
 			fi
 		fi
 	fi

@@ -181,6 +181,7 @@ IoBroker – Adapter machen.
  - (simatec) Iobroker k.Backup Stop/Start steuerbar in backitup.sh
  - (peoples) JavaScript an obige Änderungen angepasst
  - (peoples) Konfigurationseinstellungen in Datenpunkte ausgelagert
+
 #3.0 (09.06.2018)
  - (peoples) Backup Zyklen geändert
  - (peoples) Schedule angepasst an neue Zyklen 

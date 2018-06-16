@@ -18,6 +18,7 @@ Hilfe und Fragen bitte hier: [Backitup im IoBroker-Forum](https://forum.iobroker
    - 3.1 Konfigurationen für Minimal und Komplett Backup
    - 3.2 Konfigurationen für CCU Backup
    - 3.3 Konfigurationen für Mysql-Datenbank Backup
+   - 3.4 Konfiguration des JavaScript-Speicherorts
 4. Verwendung
    - 4.1 Der erste Druchlauf des JavaScripts
    - 4.2 Verwendung des VIS-Widget-Exports
@@ -64,8 +65,6 @@ Seit Version 2 ist es möglich alternativ euren vorhandenen Nas (o.Ä) mit Hilfe
   - Nachteile:
     -	Wenn ein Mounten nicht möglich ist, wird kein Backup erstellt!
     -	„Alte Backups“ können automatisiert auf dem Nas gelöscht werden. Im schlimmsten Fall ist somit kein Backup mehr vorhanden wenn ihr es benötigt.
-<img src="https://github.com/peoples0815/backitup/blob/master/img/putty.jpg" align=center>
- (Bild 1)
 
 2.	Seit Version 3 wird für das CCU-Backup (in den o.g. 3 Varianten) kein SSH Zugang mehr benötigt stattdessen wird für das Backup der Username und das Passwort der CCU (nicht mehr SSH) benötigt. Wer den SSH-Zugang sonst nicht nutzt sollte diesen aus Sicherheitsgründen deaktivieren.
 
@@ -114,6 +113,8 @@ Ein aktivieren dieser Option schließt zeitgleich die Verwendung der FTP Funktio
     - Mysql_PW → Passwort der Datenbank
     - Mysql_LN → Tage-Angabe nach denen erstellte Backups gelöscht werden sollen
 
+4. Anpassung des Script-Speicherorts:
+    - Zu Letzt muß noch der Pfad zum Speicherort des Javascripts (Wo das Javascript abgespeichert wurde) in der Funktion WerteAktualisieren richtig eingetragen sein/werden um bei Änderung eines Datenpunkts das Script neu starten zu können. Der hier voreingestellte Pfad ist("scriptEnabled.BackitUp_V3")
 ## 4. Verwendung:
 
 1.	Beim ersten Durchlauf  werden im Log „Warnings“ und evtl. „Error“ aufgelistet was nur  beim ersten Durchlauf normal ist. Dies kommt daher dass die Datenpunkte die im Nachgang abgefragt werden noch nicht vorhanden sind. Danach sollte das nicht mehr vorkommen.

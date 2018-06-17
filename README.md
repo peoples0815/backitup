@@ -11,7 +11,7 @@ Hilfe und Fragen bitte hier: [Backitup im IoBroker-Forum](https://forum.iobroker
    - 1.3 CCU Backup (CCU-Original / pivCCU / Raspberrymatic)
    - 1.4 Optionales Mysql-Backup (Localhost) 
 2. Vorbereitung
-   - 2.1 Vorbereitung für lftp / Cifs (wenn gewünscht)
+   - 2.1 Vorbereitung für ftp / Cifs (wenn gewünscht)
    - 2.2 Vorbereitungen für das CCU - Backup
    - 4.3 Vorbereitung IoBroker - Javascript Adapter
 3. Konfiguration
@@ -54,9 +54,7 @@ Im Zuge dieses Backups wird IoBroker neu gestartet!
 
 Folgende Schritte müssen durchgeführt werden um das automatische Backup V3 verwenden zu können *(wenn das Backup-Script v1 verwendet wurde zuerst alle Datenpunkte löschen!)
 
-1.	Wenn der mögliche FTP-Upload auf bspw. einen Nas gewünscht ist, wird der lftp-Dienst nicht mehr benötigt.
-
-Seit Version 2 ist es möglich alternativ euren vorhandenen Nas (o.Ä) mit Hilfe von CIFS in eure IoBroker – Dateistruktur zu mounten und das Backup direkt dort zu erstellen.
+1.	Seit Version 3 wird der lftp-Dienst für den optionalen FTP-Upload auf bspw. einen Nas nicht mehr benötigt! Ebenfalls ist es mittlerweile möglich alternativ euren vorhandenen Nas (o.Ä) mit Hilfe von CIFS in eure IoBroker – Dateistruktur zu mounten und das Backup direkt dort zu erstellen.
 
   - Vorteile:
     -	weniger Schreibzyklen auf euren Datenträger (evtl. relevant wenn Raspberry mit SD-Karte verwendet wird um Diese zu schonen)

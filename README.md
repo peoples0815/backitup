@@ -32,6 +32,9 @@ Hilfe und Fragen bitte hier: [Backitup im IoBroker-Forum](https://forum.iobroker
 7. Aufgetretene Fehler / Lösungen
    - 7.1 Webinterface nach Restore nicht erreichbar
    - 7.2 JS-Datenbunkt nicht beschreibbar
+   - 7.3 Fehlermeldung: "Komando nicht gefunden"
+   - 7.4 Komplett-Backup bleibt hängen 
+   - 7.5 Geänderte Werte in Dp werden nicht übernommen
 8. Todo
 9. Changelog
 
@@ -165,8 +168,11 @@ Durch die Unterschiede von Unix und Windows, darf die backitup.sh nicht unter Wi
 Erklärung:
 Unter DOS wird in Textdateien ein Zeilenende durch die Sequenz return (Dezimalcode 13) und new line (Dezimalcode 10) dargestellt. Unix verwendet dagegen nur new line.
 
-2. Iobroker bleibt beim komplett-Backup hängen / startet nicht mehr
+4. Iobroker bleibt beim komplett-Backup hängen / startet nicht mehr
 Einige Benutzer berichteten dass das IoBroker komplett-Backup nicht richtig durchläuft bzw. der IoBroker gestoppt und nicht mehr gestartet wird. Seit V3 ist es möglich in den Konfigurations-Datenpunkten den Stop/Start des IoBrokers beim komplett-Backup zu steuern
+
+5. Geänderte Werte werden nicht automatisch übernommen / Javascript startet nicht von selbst neu
+Wenn geänderte Werte in den Datenpunkten nicht übernommen werden kann das daran liegen, dass die Funktion des automatischen Neustarts auf Grund eines falschen Eintrags nicht ausgeführt wird. Hier muss kontrolliert werden ob der Speicherort des Javascripts im Javascript selbst (Funktion WerteAktuallisieren) richtig eingetragen ist.
 
 ## 8. Todo:
 

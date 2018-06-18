@@ -84,35 +84,42 @@ Folgende Schritte müssen durchgeführt werden um das automatische Backup V3 ver
 Wenn alles wie beschrieben durchgeführt wurde müssen die nötigen Konfigurationen im Kopf des JavaScripts getätigt werden.
 Es dürfen keine Leerzeichen eingetragen werden  wenn keine Eingabe getätigt werden muss einfach die zwei Anführungszeichen/Hochkommas ohne Inhalt stehen lassen.
 
-1.	Folgende Daten müssen bei den IoBroker Backup Typen (minimal[0]/komplett[1])  von euch eingetragen werden und richtig sein:
-    - Backup[0][1] → Namenszusatz 	
-(Wird in den Backup-Dateinamen eingefügt, wenn nicht gewünscht leer lassen!)
-    - Backup[0/1][2] → Tage-Angabe nach denen erstellte Backups  gelöscht werden sollen
-    - Backup[0/1][3] → IP-Adresse eures FTP-Servers 	(Wenn FTP verwendet)
-    - Backup[0/1][4] → Zielverzeichnis auf dem FTP	(Wenn FTP verwendet)
-    - Backup[0/1][5] → FTP – Username			(Wenn FTP verwendet)
-    - Backup[0/1][6] → FTP – Passwort			(Wenn FTP verwendet )
-    - Backup[0/1][10] → CIFS-Mount  	(Standard „false“ wenn gewünscht auf „true“)
-    - Backup[1][11] → IoStart/Stop ob beim kompletten Backup der Iobroker gestoppt/gestartet werden soll  	(Standard „false“ wenn gewünscht auf „true“)  
-Ein aktivieren dieser Option schließt zeitgleich die Verwendung der FTP Funktion aus!
+1. Folgende Daten müssen bei dem IoBroker Backup Typ minimal  von euch eingetragen werden und richtig sein: 
+   - NamensZusatz → Wird in den Backup-Dateinamen eingefügt, wenn nicht gewünscht leer lassen!
+   - BackupLoeschenNach → Tage-Angabe nach denen erstellte Backups  gelöscht werden sollen
+   - FtpHost → IP-Adresse eures FTP-Servers 	(Wenn FTP verwendet)
+   - FtpDir → Zielverzeichnis auf dem FTP	(Wenn FTP verwendet)
+   - FtpUser → FTP – Username			(Wenn FTP verwendet)
+   - FtpPw → FTP – Passwort			(Wenn FTP verwendet )
+   - CifsMount → CIFS-Mount  	(Standard „false“ wenn gewünscht auf „true“) Ein aktivieren dieser Option schließt zeitgleich die Verwendung der FTP Funktion aus!   
 
-2.	Folgende Daten müssen für das optionale CCU Backup von euch eingetragen werden und richtig sein sofern ihr dieses nutzen möchtet:
-    - Backup[2][2] → Tage-Angabe nach denen Backups gelöscht werden sollen
-    - Backup[2][3] → IP-Adresse eures FTP-Servers 	(Wenn FTP verwendet)
-    - Backup[2][4] → Zielverzeichnis auf dem FTP	(Wenn FTP verwendet)
-    - Backup[2][5] → FTP – Username			(Wenn FTP verwendet)
-    - Backup[2][6] → FTP – Passwort			(Wenn FTP verwendet)
-    - Backup[2][7] → IP-Adresse der CCU
-    - Backup[2][8] → Username der CCU                            
-    - Backup[2][9] → Passwort der CCU 
-    - Backup[2][10] → CIFS-Mount  	(Standard „false“ wenn gewünscht auf „true“)
-    - Ein aktivieren dieser Option schließt zeitgleich die Verwendung der FTP Funktion aus!
+2. Folgende Daten müssen bei dem IoBroker Backup Typ komplett  von euch eingetragen werden und richtig sein:
+   - NamensZusatz → Wird in den Backup-Dateinamen eingefügt, wenn nicht gewünscht leer lassen!
+   - BackupLoeschenNach → Tage-Angabe nach denen erstellte Backups  gelöscht werden sollen
+   - FtpHost → IP-Adresse eures FTP-Servers 	(Wenn FTP verwendet)
+   - FtpDir → Zielverzeichnis auf dem FTP	(Wenn FTP verwendet)
+   - FtpUser → FTP – Username			(Wenn FTP verwendet)
+   - FtpPw → FTP – Passwort			(Wenn FTP verwendet )
+   - CifsMount → CIFS-Mount  	(Standard „false“ wenn gewünscht auf „true“) Ein aktivieren dieser Option schließt zeitgleich die Verwendung der FTP Funktion aus!   
+   - IoStopStart → IoStart/Stop ob beim kompletten Backup der Iobroker gestoppt/gestartet werden soll  	(Standard „false“ wenn gewünscht auf „true“)  
 
-3.	Folgende Daten müssen für das optioale MYSQL-Backup  von euch eingetragen werden und richtig sein sofern ihr dieses nutzen möchtet:
-    - Mysql_DBname → Name der Datenbank
-    - Mysql_User → Username für die Datenbank
-    - Mysql_PW → Passwort der Datenbank
-    - Mysql_LN → Tage-Angabe nach denen erstellte Backups gelöscht werden sollen
+3. Folgende Daten müssen für das optionale CCU Backup von euch eingetragen werden und richtig sein sofern ihr dieses nutzen möchtet:
+   - BackupLoeschenNach → Tage-Angabe nach denen erstellte Backups  gelöscht werden sollen
+   - CcuIp → IP-Adresse der CCU
+   - CcuUser → Username der CCU                            
+   - CcuPw → Passwort der CCU 
+   - FtpHost → IP-Adresse eures FTP-Servers 	(Wenn FTP verwendet)
+   - FtpDir → Zielverzeichnis auf dem FTP	(Wenn FTP verwendet)
+   - FtpUser → FTP – Username			(Wenn FTP verwendet)
+   - FtpPw → FTP – Passwort			(Wenn FTP verwendet )
+   - CifsMount → CIFS-Mount  	(Standard „false“ wenn gewünscht auf „true“) Ein aktivieren dieser Option schließt zeitgleich die Verwendung der FTP Funktion aus!   
+
+4. Folgende Daten müssen für das optioale MYSQL-Backup  von euch eingetragen werden und richtig sein sofern ihr dieses nutzen möchtet:
+   - BackupLoeschenNach → Tage-Angabe nach denen erstellte Backups  gelöscht werden sollen
+   - DbName → Name der Datenbank
+   - DbUser → Username für die Datenbank
+   - DbPw → Passwort der Datenbank
+   
 
 4. Anpassung des Script-Speicherorts:
     - Zu Letzt muß noch der Pfad zum Speicherort des Javascripts (Wo das Javascript abgespeichert wurde) in der Funktion WerteAktualisieren richtig eingetragen sein/werden um bei Änderung eines Datenpunkts das Script neu starten zu können. Der hier voreingestellte Pfad ist("scriptEnabled.BackitUp_V3")

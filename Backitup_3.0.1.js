@@ -184,7 +184,9 @@ function BackupStellen() {
         createState(instanz + pfad0 + 'Einstellungen.' + Bkp[0] +'.BackupZeit',  {def: '02:00',type: 'string',name: Bkp[0] +' Backup Zeit'});
         createState(instanz + pfad0 + 'Einstellungen.' + Bkp[0] +'.BackupTageZyklus',  {def: '3',type: 'number',name: Bkp[0] +' Backup Tages-Zyklus'});
 
-        createState(instanz + pfad0 + 'Konfiguration.' + Bkp[0] +'.NamensZusatz',  {def: '',type: 'string',name: Bkp[0] +' NamensZusatz'});
+        if(Bkp[0] !== 'ccu') {
+          createState(instanz + pfad0 + 'Konfiguration.' + Bkp[0] +'.NamensZusatz',  {def: '',type: 'string',name: Bkp[0] +' NamensZusatz'});
+        }
         createState(instanz + pfad0 + 'Konfiguration.' + Bkp[0] +'.BackupLoeschenNach',  {def: '5',type: 'number',name: Bkp[0] +' Loeschen nach'});
         createState(instanz + pfad0 + 'Konfiguration.' + Bkp[0] +'.FtpHost',  {def: '',type: 'string',name: Bkp[0] +' FTP Host'});
         createState(instanz + pfad0 + 'Konfiguration.' + Bkp[0] +'.FtpDir',  {def: '',type: 'string',name: Bkp[0] +' FTP Dir'});

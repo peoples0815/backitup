@@ -15,10 +15,13 @@
 # Version: 1.0.1 - Optionaler Upload auf FTP-Server
 # Version: 2.0   - Raspberrymatic-Backup mit eingebunden
 # Version: 2.0.1 - Optionale Verwendung von CIFS-Mount eingebunden
-#		   Iobroker Stop und Start bei Komplettbackup eingefÃ¼gt
-# Version: 2.0.2 - ZusÃ¤tzliches MYSQL-Backup inkl. upload auf FTP-Server
+#		 - Iobroker Stop und Start bei Komplettbackup eingefügt
+# Version: 2.0.2 - Zusätzliches MYSQL-Backup inkl. upload auf FTP-Server
 # Version: 2.0.3 - Erste Version auf Github
 # Version: 2.0.4 - Backupmöglichkeit für Homematic-CCU und pivccu eingebunden
+# Version: 3.0.0 - Backup für Raspberrymatic entfernt (wird jetzt alles über das Homematic-CCU Backup erledigt)
+# 		 - diverse Änderungen und Verbesserungen im Script
+# Version: 3.0.1 - FTP-Upload auf "curl" geändert (Das Packet LFTP wird nicht mehr benötigt)
 #
 #
 # Verwendung:  bash backup.sh "Backup_Typ|Namens_Zusatz|Loeschen_nach_X_Tagen|NAS_Host|NAS_Verzeichnis|NAS_User|NAS_Passwort|CCU-IP|CCU-USER|CCU-PW|CIFS_MNT|IOBROKER_RESTART|MYSQL_DBNAME|MYSQL_USR|MYSQL_PW|MYSQL_Loeschen_nach_X_Tagen"
@@ -55,22 +58,22 @@ MYSQL_PW=${VAR[14]}
 MYSQL_LOESCHEN_NACH=${VAR[15]}
 
 
-#Variable fuer optionales Weiterkopieren
+# Variable fuer optionales Weiterkopieren
 BKP_OK="NEIN"
 
-#Datum definieren fÃ¼r iobroker
+# Datum definieren für iobroker
 datum=`date +%Y_%m_%d`
 
-#Datum definieren fÃ¼r raspberrymatic
-datum_rasp=`date +%Y-%m-%d`
+# Backuppfad im iobroker definieren
+bkpdir="/opt/iobroker/backups"
 
-#Uhrzeit bestimmten
+# Uhrzeit bestimmten
 uhrzeit=`date +%H_%M_%S`
 
-#Stunde definieren
+# Stunde definieren
 stunde=`date +%H`
 
-#Minute definieren
+# Minute definieren
 minute=`date +%M`
 
 
@@ -82,9 +85,9 @@ minute=`date +%M`
 ############################################################################
 
 if [ $CIFS_MNT == "true" ]; then
-	echo Backup-Pfad auf CIFS mounten
-	sudo umount /opt/iobroker/backups
-	sudo mount -t cifs -o user=$NAS_USR,password=$NAS_PASS,rw,file_mode=0777,dir_mode=0777,vers=1.0 //$NAS_HOST/$NAS_DIR /opt/iobroker/backups && echo success "--- CIFS-Server verbunden ---" || echo error "--- Backup-Pfad wurde nicht auf CIFS-Server verbunden ---"
+	echo "--- Backup-Pfad auf CIFS mounten ---"
+	sudo umount $bkpdir
+	sudo mount -t cifs -o user=$NAS_USR,password=$NAS_PASS,rw,file_mode=0777,dir_mode=0777,vers=1.0 //$NAS_HOST/$NAS_DIR $bkpdir && echo success "--- CIFS-Server verbunden ---" || echo error "--- Backup-Pfad wurde nicht auf CIFS-Server verbunden ---"
 fi
 
 
@@ -95,8 +98,8 @@ fi
 ############################################################################
 
 if [ -n "$MYSQL_DBNAME" ]; then
-	echo "MYSQL-Backup wird erstellt"
-	mysqldump -u $MYSQL_USR -p$MYSQL_PW $MYSQL_DBNAME > /opt/iobroker/backups/backupiobroker_mysql-$(date +"%d-%b-%Y")_$MYSQL_DBNAME_mysql_db.sql
+	echo "--- MYSQL-Backup wird erstellt ---"
+	mysqldump -u $MYSQL_USR -p$MYSQL_PW $MYSQL_DBNAME > $bkpdir/backupiobroker_mysql-$MYSQL_DBNAME-$datum-$uhrzeit.sql && echo success "--- MYSQL Backup wurde erstellt ---" || echo error "--- MYSQL Backup konnte nicht erstellt werden ---"
 fi
 ############################################################################
 #									   #
@@ -107,13 +110,12 @@ fi
 if [ $BKP_TYP == "minimal" ]; then
 
 #	Backup ausfuehren
-	echo --- Es wurde ein Normales Backup gestartet ---
-	iobroker backup
-	echo --- Backup Erstellt ---
+	echo "--- Es wurde ein Normales Backup gestartet ---"
+	iobroker backup && echo success "--- Ein normales Backup wurde erstellt ---" || echo error "--- Ein normales Backup konnte nicht erstellt werden ---"
 	BKP_OK="JA"
 
 #	Backup umbenennen
-	mv /opt/iobroker/backups/$datum-$stunde* /opt/iobroker/backups/backupiobroker_minimal$NAME_ZUSATZ-$datum-$uhrzeit.tar.gz
+	mv $bkpdir/$datum-$stunde* $bkpdir/backupiobroker_minimal$NAME_ZUSATZ-$datum-$uhrzeit.tar.gz
 
 
 ############################################################################
@@ -129,43 +131,43 @@ elif [ $BKP_TYP == "komplett" ]; then
 		cd /opt/iobroker
 		sleep 10
 		iobroker stop
-		echo --- IoBroker gestoppt ---
+		echo "--- IoBroker gestoppt ---"
 	fi
 
 #	Ins ioBroker Verzeichnis wechseln um komplettes IoBroker Verzeichnis zu sichern
 	cd /opt
 #	Backup ausfuehren
-	echo --- Es wurde ein Komplettes Backup gestartet ---
-	tar -czf $datum-$uhrzeit-backup_komplett.tar.gz --exclude="/opt/iobroker/backups" /opt/iobroker
-	echo --- Backup Erstellt ---
+	echo "--- Es wurde ein Komplettes Backup gestartet ---"
+	tar -czf $datum-$uhrzeit-backup_komplett.tar.gz --exclude="$bkpdir" /opt/iobroker
 	BKP_OK="JA"
 
 #	Backup umbenennen
-	mv /opt/$datum-$stunde*_komplett.tar.gz /opt/iobroker/backups/backupiobroker_komplett$NAME_ZUSATZ-$datum-$uhrzeit.tar.gz
+	mv /opt/$datum-$stunde*_komplett.tar.gz $bkpdir/backupiobroker_komplett$NAME_ZUSATZ-$datum-$uhrzeit.tar.gz && echo success "--- Ein komplettes Backup wurde erstellt ---" || echo error "--- Ein komplettes Backup konnte nicht erstellt werden ---"
 
 # 	IoBroker neustarten
 	if [ $IOBROKER_RESTART == "true" ]; then
  		iobroker restart
 #		cd /opt/iobroker
 #		iobroker start
-		echo --- IoBroker gestartet ---
+		echo "--- IoBroker gestartet ---"
 	fi
 	
 ############################################################################
 #									   #
-# Erstellen eines Backups der CCU2 / PIVCCU                                #
+# Erstellen eines Backups der Homematic-CCU                                #
 #                                                                          #
 ############################################################################
 
 elif [ $BKP_TYP == "ccu" ]; then
 
 # 	Meldung
-	echo --- Es wurde ein CCU - PIVCCU Backup gestartet ---
+	echo "--- Es wurde ein Homematic CCU Backup gestartet ---"
 
 	run=$0.lastrun
  
 # 	Homematic Login
-	wget --post-data '{"method":"Session.login","params":{"username":"'$CCU_USER'","password":"'$CCU_PASS'"}}' http://$CCU_HOST/api/homematic.cgi -O hm.login.response -q >$run 2>&1
+	wget --post-data '{"method":"Session.login","params":{"username":"'$CCU_USER'","password":"'$CCU_PASS'"}}' http://$CCU_HOST/api/homematic.cgi -O hm.login.response -q >$run 2>&1 && echo success "--- Login Homematic-CCU erfolgreich ---" || echo error "--- Login Homematic-CCU nicht erfolgreich ---"
+	BKP_OK="JA"
  
 # 	Login-Pruefung
 	loginerror=`cat hm.login.response|cut -d "," -f3|awk '{print $2}'`
@@ -182,7 +184,7 @@ elif [ $BKP_TYP == "ccu" ]; then
 	ccuversion="${VER:8:7}"
  
 # 	Backupdatei herunterladen
-	wget "http://$CCU_HOST/config/cp_security.cgi?sid=@$sessionid@&action=create_backup" -O /opt/iobroker/backups/Homematic-Backup-$ccuversion-$datum-$uhrzeit.tar.sbk -q >>$run 2>&1
+	wget "http://$CCU_HOST/config/cp_security.cgi?sid=@$sessionid@&action=create_backup" -O $bkpdir/Homematic-Backup-$ccuversion-$datum-$uhrzeit.tar.sbk -q >>$run 2>&1 && echo success "--- Ein Homematic-CCU Backup wurde erstellt ---" || echo error "--- Ein Homematic-CCU Backup konnte nicht erstellt werden ---"
  
 # 	Homematic Logout
 	wget --post-data '{"method":"Session.logout","params":{"_session_id_":"'$sessionid'"}}' http://$CCU_HOST/api/homematic.cgi -O hm.logout.response -q >>$run 2>&1
@@ -190,12 +192,10 @@ elif [ $BKP_TYP == "ccu" ]; then
 # 	temp. Dateien loeschen
 	rm hm.login.response hm.logout.response >>$run 2>&1
 
-# 	Meldung 
-	echo --- Backup Erstellt ---
 	BKP_OK="JA"
 	
 else
-	echo "Kein gueltiger Backup Typ gewaehlt! Moegliche Auswahl: 'minimal', 'komplett' oder 'ccu'"
+	echo "--- Kein gueltiger Backup Typ gewaehlt! Moegliche Auswahl: 'minimal', 'komplett' oder 'ccu' ---"
 fi
 
 
@@ -207,19 +207,19 @@ fi
 ############################################################################
 
 if [ -n "$MYSQL_LOESCHEN_NACH" ]; then
-	find /opt/iobroker/backups -name "backupiobroker_mysql*.sql" -mtime +$MYSQL_LOESCHEN_NACH -exec rm '{}' \;
+	find $bkpdir -name "backupiobroker_mysql*.sql" -mtime +$MYSQL_LOESCHEN_NACH -exec rm '{}' \;
 fi
 
 if [ $BKP_OK == "JA" ]; then
 	if [ -n "$BKP_LOESCHEN_NACH" ]; then
-#		Backups Ã¤lter X Tage lÃ¶schen
+#		Backups Älter X Tage löschen
 		echo "--- Alte Backups entfernen ---"
 
 		if [ $BKP_TYP == "ccu" ]; then
-			find /opt/iobroker/backups -name "*.tar.sbk" -mtime +$BKP_LOESCHEN_NACH -exec rm '{}' \;
+			find $bkpdir -name "*.tar.sbk" -mtime +$BKP_LOESCHEN_NACH -exec rm '{}' \; && echo success "--- Ueberpruefung auf alte Dateien und loeschen erfolgreich ---" || echo error "--- Ueberpruefung auf alte Dateien und loeschen nicht erfolgreich ---"
 			sleep 10
 		else
-			find /opt/iobroker/backups -name "backupiobroker_$BKP_TYP$NAME_ZUSATZ*.tar.gz" -mtime +$BKP_LOESCHEN_NACH -exec rm '{}' \;
+			find $bkpdir -name "backupiobroker_$BKP_TYP$NAME_ZUSATZ*.tar.gz" -mtime +$BKP_LOESCHEN_NACH -exec rm '{}' \; && echo success "--- Ueberpruefung auf alte Dateien und loeschen erfolgreich ---" || echo error "--- Ueberpruefung auf alte Dateien und loeschen nicht erfolgreich ---"
 			sleep 10
 		fi
 	else
@@ -232,28 +232,29 @@ if [ $BKP_OK == "JA" ]; then
 # Optionaler Upload des Backups auf einen FTP-Server                       #
 #                                                                          #
 ############################################################################
+
 	if [ $CIFS_MNT == "false" ]; then
 		if [ -n "$NAS_HOST" ]; then
 #			Backup-Files via FTP kopieren
 			echo "--- Backup-File FTP-Upload wird gestartet ---"
 #			Verzeichnis wechseln
-			cd /opt/iobroker/backups/
+			cd $bkpdir/
 			ls
 
 			if [ -n "$MYSQL_DBNAME" ]; then
-				curl -s --disable-epsv -v -T"/opt/iobroker/backups/backupiobroker_mysql-$(date +"%d-%b-%Y")_$MYSQL_DBNAME_mysql_db.sql" -u"$NAS_USR:$NAS_PASS" "ftp://$NAS_HOST$NAS_DIR/" && echo success "--- Backup-File wurde erfolgreich auf ein anderes Verzeichnis kopiert ---" || echo error "--- Backup-File wurde nicht auf ein anderes Verzeichnis kopiert ---"
+				curl -s --disable-epsv -v -T"$bkpdir/backupiobroker_mysql-$MYSQL_DBNAME-$datum-$uhrzeit.sql" -u"$NAS_USR:$NAS_PASS" "ftp://$NAS_HOST$NAS_DIR/" && echo success "--- Backup-File wurde erfolgreich auf ein anderes Verzeichnis kopiert ---" || echo error "--- Backup-File wurde nicht auf ein anderes Verzeichnis kopiert ---"
 			fi
 
 			if [ $BKP_TYP == "ccu" ]; then
-				curl -s --disable-epsv -v -T"/opt/iobroker/backups/Homematic-Backup-$ccuversion-$datum-$uhrzeit.tar.sbk" -u"$NAS_USR:$NAS_PASS" "ftp://$NAS_HOST$NAS_DIR/" && echo success "--- Backup-File wurde erfolgreich auf ein anderes Verzeichnis kopiert ---" || echo error "--- Backup-File wurde nicht auf ein anderes Verzeichnis kopiert ---"
+				curl -s --disable-epsv -v -T"$bkpdir/Homematic-Backup-$ccuversion-$datum-$uhrzeit.tar.sbk" -u"$NAS_USR:$NAS_PASS" "ftp://$NAS_HOST$NAS_DIR/" && echo success "--- Backup-File wurde erfolgreich auf ein anderes Verzeichnis kopiert ---" || echo error "--- Backup-File wurde nicht auf ein anderes Verzeichnis kopiert ---"
 			else
-				curl -s --disable-epsv -v -T"/opt/iobroker/backups/backupiobroker_$BKP_TYP$NAME_ZUSATZ-$datum-$uhrzeit.tar.gz" -u"$NAS_USR:$NAS_PASS" "ftp://$NAS_HOST$NAS_DIR/" && echo success "--- Backup-File wurde erfolgreich auf ein anderes Verzeichnis kopiert ---" || echo error "--- Backup-File wurde nicht auf ein anderes Verzeichnis kopiert ---"
+				curl -s --disable-epsv -v -T"$bkpdir/backupiobroker_$BKP_TYP$NAME_ZUSATZ-$datum-$uhrzeit.tar.gz" -u"$NAS_USR:$NAS_PASS" "ftp://$NAS_HOST$NAS_DIR/" && echo success "--- Backup-File wurde erfolgreich auf ein anderes Verzeichnis kopiert ---" || echo error "--- Backup-File wurde nicht auf ein anderes Verzeichnis kopiert ---"
 			fi
 		fi
 	fi
 	BKP_OK="NEIN"
 else
-	echo "Kein Backup erstellt!"
+	echo "--- Kein Backup erstellt! ---"
 fi
 
 
@@ -265,8 +266,8 @@ fi
 
 if [ $CIFS_MNT == "true" ]; then
 
-	Backup-Pfad auf CIFS umounten
-	sudo umount /opt/iobroker/backups && echo success "--- Umount CIFS Server ---" || echo error "--- Backup-Pfad wurde nicht vom CIFS-Server getrennt ---"
+#	Backup-Pfad auf CIFS umounten
+	sudo umount $bkpdir && echo success "--- Umount CIFS Server ---" || echo error "--- Backup-Pfad wurde nicht vom CIFS-Server getrennt ---"
 fi
 
-
+exit 0

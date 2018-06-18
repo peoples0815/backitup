@@ -22,6 +22,7 @@
 # Version: 3.0.0 - Backup für Raspberrymatic entfernt (wird jetzt alles über das Homematic-CCU Backup erledigt)
 # 		 - diverse Änderungen und Verbesserungen im Script
 # Version: 3.0.1 - FTP-Upload auf "curl" geändert (Das Packet LFTP wird nicht mehr benötigt)
+# 		 - Iobroker Komplett-Backup Stop/Start steuerbar
 #
 #
 # Verwendung:  bash backup.sh "Backup_Typ|Namens_Zusatz|Loeschen_nach_X_Tagen|NAS_Host|NAS_Verzeichnis|NAS_User|NAS_Passwort|CCU-IP|CCU-USER|CCU-PW|CIFS_MNT|IOBROKER_RESTART|MYSQL_DBNAME|MYSQL_USR|MYSQL_PW|MYSQL_Loeschen_nach_X_Tagen"

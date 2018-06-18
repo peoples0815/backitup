@@ -104,7 +104,7 @@ var Backup = [];                                        // Array für die Defini
     Backup[1][7] = ''; // Nicht benötigt bei diesem BKP-Typ (nicht verändern!)
     Backup[1][8] = ''; // Nicht benötigt bei diesem BKP-Typ (nicht verändern!)
     Backup[1][9] = ''; // Nicht benötigt bei diesem BKP-Typ (nicht verändern!)
-    Backup[1][10] = getState(instanz + pfad0 + 'Konfiguration.minimal.CifsMount').val;       // Festlegen ob CIFS-Mount genutzt werden soll 
+    Backup[1][10] = getState(instanz + pfad0 + 'Konfiguration.komplett.CifsMount').val;       // Festlegen ob CIFS-Mount genutzt werden soll 
     Backup[1][11] = getState(instanz + pfad0 + 'Konfiguration.komplett.IoStopStart').val;         // Festlegen ob IoBroker gestoppt/gestartet wird 
 
 // Konfiguration für das CCU / pivCCU / Raspberrymatic Backup
@@ -325,8 +325,8 @@ function ScriptStart() {
 }
 
 function WerteAktuallisieren() {
-    setState(instanz + "scriptEnabled.Wandtablet.System.BackitUp_V3", false);
-    setStateDelayed(instanz + "scriptEnabled.Wandtablet.System.BackitUp_V3", true, 1000);
+    setState(instanz + "scriptEnabled.BackitUp_V3", false);
+    setStateDelayed(instanz + "scriptEnabled.BackitUp_V3", true, 1000);
 }
 // #############################################################################
 // #                                                                           #

@@ -122,6 +122,32 @@ Ein aktivieren dieser Option schließt zeitgleich die Verwendung der FTP Funktio
 
 2.	Alle Funktionen wie Backup – Zyklen / Uhrzeiten, das Aktivieren oder Deaktivieren, sowie ein Backup sofort ausführen ist komplett über VIS einstellbar. Auf Nachfrage habe ich auch noch eine kleine History eingefügt welcher zeigt wann welches Backup zuletzt durchgelaufen ist.
 
+3. Der History-Log kann via CSS vom Design her eingestellt / verändert werden:
+   ```
+   .backup_history{
+       display:block;
+       width:100%;
+   /*    overflow-y:scroll; */
+   }
+   .bkptyp_minimal
+       {
+           float:left;
+           color:white;
+           font-size:18px;
+       }
+   .bkptyp_komplett
+       {
+           float:left;
+           color:yellow;
+           font-size:18px;
+       }
+   .bkptyp_ccu
+       {
+           float:left;
+           color:red;
+           font-size:18px;
+       }
+   ```
 Hier ein Screenshot vom VIS-Widget-Export:
 <img src="https://github.com/peoples0815/backitup/blob/master/img/screenshot_vis-export.jpg" align=center>
 

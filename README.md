@@ -75,7 +75,7 @@ Folgende Schritte müssen durchgeführt werden um das automatische Backup V3 ver
 
 5.	Das im Beitrag enthaltene Shell-Script muss in das IoBroker-Verzeichnis unter dem Namen backitup.sh gespeichert  (absoluter Pfad: /opt/iobroker/backitup.sh) und die Berechtigungen sollten auf 777 gesetzt werden. Bei mir läuft das Script mit Admin Rechten wenn ihr bei euch die nötigen Freigaben händisch einstellt ist dies jedoch nicht nötig. Das Script darf nicht in einem Windows Editor bearbeitet werden, da sonst unter Umständen das Script nicht mehr fehlerfrei durchläuft
 
-6.	Das BackItUp - Java-Script aus dem Beitrag unter einem beliebigen Namen im IoBroker bei Skripte abspeichern (nicht unter global). 
+6.	Das BackItUp - Java-Script sollte im IoBroker unter dem Namen BackitUp_V3 im "Haupt-Zweig" (nicht unter global) abgespeichert werden. Wenn hier ein anderer Dateiname/Zweig gewählt wird, muss der Pfad in der Funktion "WerteAktualisieren" des Javascripts angepasst werden. 
 
 7.	Für die spätere Konfiguration durch VIS muss nun noch der View-Export in euer Projekt importiert werden.
 
@@ -116,6 +116,7 @@ Ein aktivieren dieser Option schließt zeitgleich die Verwendung der FTP Funktio
 
 4. Anpassung des Script-Speicherorts:
     - Zu Letzt muß noch der Pfad zum Speicherort des Javascripts (Wo das Javascript abgespeichert wurde) in der Funktion WerteAktualisieren richtig eingetragen sein/werden um bei Änderung eines Datenpunkts das Script neu starten zu können. Der hier voreingestellte Pfad ist("scriptEnabled.BackitUp_V3")
+
 ## 4. Verwendung:
 
 1.	Beim ersten Durchlauf  werden im Log „Warnings“ und evtl. „Error“ aufgelistet was nur  beim ersten Durchlauf normal ist. Dies kommt daher dass die Datenpunkte die im Nachgang abgefragt werden noch nicht vorhanden sind. Danach sollte das nicht mehr vorkommen.

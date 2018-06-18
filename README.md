@@ -16,9 +16,10 @@ Hilfe und Fragen bitte hier: [Backitup im IoBroker-Forum](https://forum.iobroker
    - 4.3 Vorbereitung IoBroker - Javascript Adapter
 3. Konfiguration
    - 3.1 Konfigurationen für Minimal und Komplett Backup
-   - 3.2 Konfigurationen für CCU Backup
-   - 3.3 Konfigurationen für Mysql-Datenbank Backup
-   - 3.4 Konfiguration des JavaScript-Speicherorts
+   - 3.2 Konfigurationen für Minimal und Komplett Backup
+   - 3.3 Konfigurationen für CCU Backup
+   - 3.4 Konfigurationen für Mysql-Datenbank Backup
+   - 3.5 Konfiguration des JavaScript-Speicherorts
 4. Verwendung
    - 4.1 Der erste Druchlauf des JavaScripts
    - 4.2 Verwendung des VIS-Widget-Exports
@@ -121,7 +122,7 @@ Es dürfen keine Leerzeichen eingetragen werden  wenn keine Eingabe getätigt we
    - DbPw → Passwort der Datenbank
    
 
-4. Anpassung des Script-Speicherorts:
+5. Anpassung des Script-Speicherorts:
     - Zu Letzt muß noch der Pfad zum Speicherort des Javascripts (Wo das Javascript abgespeichert wurde) in der Funktion WerteAktualisieren richtig eingetragen sein/werden um bei Änderung eines Datenpunkts das Script neu starten zu können. Der hier voreingestellte Pfad ist("scriptEnabled.BackitUp_V3")
 
 ## 4. Verwendung:

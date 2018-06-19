@@ -331,12 +331,7 @@ function WerteAktualisieren() {
     runScript(name);
     log('Werte wurden aktualisiert');
 }
-/* Alte Umsetzung 
-function WerteAktuallisieren() {
-    setState(instanz + "scriptEnabled.Wandtablet.System.BackitUp_V3", false);
-    setStateDelayed(instanz + "scriptEnabled.Wandtablet.System.BackitUp_V3", true, 1000);
-}
-*/
+
 // #############################################################################
 // #                                                                           #
 // #  Beim ersten Start alle benötigten Datenpunkte / Enum.funcitons erstellen #

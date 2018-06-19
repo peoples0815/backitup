@@ -35,7 +35,7 @@ Hilfe und Fragen bitte hier: [Backitup im IoBroker-Forum](https://forum.iobroker
    - 7.2 JS-Datenbunkt nicht beschreibbar
    - 7.3 Fehlermeldung: "Komando nicht gefunden"
    - 7.4 Komplett-Backup bleibt hängen 
-   - 7.5 Geänderte Werte in Dp werden nicht übernommen
+   - 7.5 Geänderte Werte in Dp werden nicht übernommen 
 8. Todo
 9. Changelog
 
@@ -123,7 +123,7 @@ Wenn alles wie beschrieben durchgeführt wurde, muss das Javascript einmal durch
    - DbPw → Passwort der Datenbank
    
 
-5. Anpassung des Script-Speicherorts:
+5. Anpassung des Script-Speicherorts (ab Backitup_3.0.2.js nicht mehr notwendig):
     - Zu Letzt muß noch der Pfad zum Speicherort des Javascripts (Wo das Javascript abgespeichert wurde) in der Funktion WerteAktualisieren richtig eingetragen sein/werden um bei Änderung eines Datenpunkts das Script neu starten zu können. Der hier voreingestellte Pfad ist("scriptEnabled.BackitUp_V3")
 
 ## 4. Verwendung:
@@ -209,6 +209,7 @@ Einige Benutzer berichteten dass das IoBroker komplett-Backup nicht richtig durc
 
 5. Geänderte Werte werden nicht automatisch übernommen / Javascript startet nicht von selbst neu
 Wenn geänderte Werte in den Datenpunkten nicht übernommen werden kann das daran liegen, dass die Funktion des automatischen Neustarts auf Grund eines falschen Eintrags nicht ausgeführt wird. Hier muss kontrolliert werden ob der Speicherort des Javascripts im Javascript selbst (Funktion WerteAktuallisieren) richtig eingetragen ist.
+Sollte ab Version Backitup_3.0.2.js nicht mehr auftreten
 
 ## 8. Todo:
 
@@ -216,6 +217,10 @@ Ein weiterer Schritt wird sein den Restore eines Iobroker-Backups auch auch übe
 IoBroker – Adapter machen. 
 
 ## 9. Changelog:
+#3.0.2
+ - (peoples) Update Backitup_3.0.2.js
+             - Javascript Instanz wird ausgelesen
+             - Funktion WerteAktualisieren jetzt ohne Pfadangabe
 #3.0.1
  - (simatec) Ftp-Upload nun ohne lftp möglich
  - (simatec) Iobroker k.Backup Stop/Start steuerbar in backitup.sh

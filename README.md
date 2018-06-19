@@ -82,8 +82,9 @@ Folgende Schritte müssen durchgeführt werden um das automatische Backup V3 ver
 
 ## 3. Konfiguration:
 
-Wenn alles wie beschrieben durchgeführt wurde müssen die nötigen Konfigurationen im Kopf des JavaScripts getätigt werden.
-Es dürfen keine Leerzeichen eingetragen werden  wenn keine Eingabe getätigt werden muss einfach die zwei Anführungszeichen/Hochkommas ohne Inhalt stehen lassen.
+Wenn alles wie beschrieben durchgeführt wurde, muss das Javascript einmal durch drücken auf den "Play-Button" gestartet und wieder gestoppt werden. Hier treten im Log einige Fehlermeldungen durch subscriben nicht vorhandener Datenpunkte auf die aber NUR HIER ignoriert werden können. Hier noch ein Screenshot der Datenpunkte die nun vorhanden sein sollten und wie folgt ausgefüllt werden müssen:
+
+<img src="https://github.com/peoples0815/backitup/blob/master/img/Screenshot-Datenpunkte.jpg" align=center>
 
 1. Folgende Daten müssen bei dem IoBroker Backup Typ minimal  von euch eingetragen werden und richtig sein: 
    - NamensZusatz → Wird in den Backup-Dateinamen eingefügt, wenn nicht gewünscht leer lassen!

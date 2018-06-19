@@ -44,6 +44,8 @@
 //                      - Stop/Start des IoBrokers bei komplett Backup nun einstellbar
 //                      - Neustart des Scripts bei Änderung eines Datenpunktes um geänderte Werte
 //                        einzulesen
+// v3.0.2 - 19.06.2018  - Javascript Instanz "verscriptet" (Tipp von Pix)
+//                      - Neustart des Scripts nun ohne Pfadangabe (Tipp von Pix)
 // *******************************************************************************************************
 
 
@@ -52,16 +54,15 @@
 // -----------------------------------------------------------------------------
 // allgemeine Variablen
 // -----------------------------------------------------------------------------
-var logging = true;                                         // Logging on/off
-var debugging = true;										// Detailiertere Loggings
-var instanz = 'javascript.0';  instanz = instanz + '.';     // 
-                                                            //
-var pfad0 =   'System.Iobroker.Backup.';					// Pfad innerhalb der Instanz - Status allgemien
+var logging = true;                                                 // Logging on/off
+var debugging = false;										        // Detailiertere Loggings
+var instanz = 'javascript.';  instanz = instanz + instance +'.';    //                                                            //
+var pfad0 =   'System.Iobroker.Backup.';					        // Pfad innerhalb der Instanz 
 
 
 var bash_script = 'bash /opt/iobroker/backitup.sh ';        // Pfad zu backup.sh Datei
 
-var anzahl_eintraege_history = 13;                          // Anzahl der Einträge in der History
+var anzahl_eintraege_history = 25;                          // Anzahl der Einträge in der History
 
 
 //#################################################################################################
@@ -185,7 +186,7 @@ function BackupStellen() {
         createState(instanz + pfad0 + 'Einstellungen.' + Bkp[0] +'.BackupTageZyklus',  {def: '3',type: 'number',name: Bkp[0] +' Backup Tages-Zyklus'});
 
         if(Bkp[0] !== 'ccu') {
-          createState(instanz + pfad0 + 'Konfiguration.' + Bkp[0] +'.NamensZusatz',  {def: '',type: 'string',name: Bkp[0] +' NamensZusatz'});
+            createState(instanz + pfad0 + 'Konfiguration.' + Bkp[0] +'.NamensZusatz',  {def: '',type: 'string',name: Bkp[0] +' NamensZusatz'});
         }
         createState(instanz + pfad0 + 'Konfiguration.' + Bkp[0] +'.BackupLoeschenNach',  {def: '5',type: 'number',name: Bkp[0] +' Loeschen nach'});
         createState(instanz + pfad0 + 'Konfiguration.' + Bkp[0] +'.FtpHost',  {def: '',type: 'string',name: Bkp[0] +' FTP Host'});
@@ -326,10 +327,16 @@ function ScriptStart() {
 
 }
 
-function WerteAktuallisieren() {
-    setState(instanz + "scriptEnabled.BackitUp_V3", false);
-    setStateDelayed(instanz + "scriptEnabled.BackitUp_V3", true, 1000);
+function WerteAktualisieren() {
+    runScript(name);
+    log('Werte wurden aktualisiert');
 }
+/* Alte Umsetzung 
+function WerteAktuallisieren() {
+    setState(instanz + "scriptEnabled.Wandtablet.System.BackitUp_V3", false);
+    setStateDelayed(instanz + "scriptEnabled.Wandtablet.System.BackitUp_V3", true, 1000);
+}
+*/
 // #############################################################################
 // #                                                                           #
 // #  Beim ersten Start alle benötigten Datenpunkte / Enum.funcitons erstellen #
@@ -378,7 +385,7 @@ on({id: instanz + pfad0 + 'OneClick.start_ccu_Backup', change: "ne"}, function (
 
 $('state(functions=BackItUp)').on(function(obj) {
 
-    WerteAktuallisieren();
+    WerteAktualisieren();
 
 });
 

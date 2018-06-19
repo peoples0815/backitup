@@ -219,8 +219,8 @@ IoBroker – Adapter machen.
 ## 9. Changelog:
 #3.0.2
  - (peoples) Update Backitup_3.0.2.js
-             - Javascript Instanz wird ausgelesen
-             - Funktion WerteAktualisieren jetzt ohne Pfadangabe
+    - Javascript Instanz wird ausgelesen
+    - Funktion WerteAktualisieren jetzt ohne Pfadangabe
 
 #3.0.1
  - (simatec) Ftp-Upload nun ohne lftp möglich

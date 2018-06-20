@@ -74,11 +74,9 @@ Folgende Schritte müssen durchgeführt werden um das automatische Backup V3 ver
 <img src="https://github.com/peoples0815/backitup/blob/master/img/einstellungen_js-script_adapter.jpg" align=center>
 (Bild 3)
 
-5.	Das im Beitrag enthaltene Shell-Script muss in das IoBroker-Verzeichnis unter dem Namen backitup.sh gespeichert  (absoluter Pfad: /opt/iobroker/backitup.sh) und die Berechtigungen sollten auf 777 gesetzt werden. Bei mir läuft das Script mit Admin Rechten wenn ihr bei euch die nötigen Freigaben händisch einstellt ist dies jedoch nicht nötig. Das Script darf nicht in einem Windows Editor bearbeitet werden, da sonst unter Umständen das Script nicht mehr fehlerfrei durchläuft
+5.	Das im Beitrag enthaltene Shell-Script muss in das IoBroker-Verzeichnis unter dem Namen backitup.sh gespeichert  (absoluter Pfad: /opt/iobroker/backitup.sh) und die Berechtigungen sollten auf 777 gesetzt werden. Bei mir läuft das Script mit Admin Rechten wenn ihr bei euch die nötigen Freigaben händisch einstellt ist dies jedoch nicht nötig. Das Script darf nicht in einem Windows Editor bearbeitet werden, da sonst unter Umständen das Script nicht mehr fehlerfrei durchläuft. 
 
-6.	Das BackItUp - Java-Script sollte im IoBroker unter dem Namen BackitUp_V3 im "Haupt-Zweig" (nicht unter global) abgespeichert werden. Wenn hier ein anderer Dateiname/Zweig gewählt wird, muss der Pfad in der Funktion "WerteAktualisieren" des Javascripts angepasst werden. 
-
-7.	Für die spätere Konfiguration durch VIS muss nun noch der View-Export in euer Projekt importiert werden.
+6.	Für die spätere Konfiguration durch VIS muss nun noch der View-Export in euer Projekt importiert werden.
 
 ## 3. Konfiguration:
 

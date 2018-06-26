@@ -76,7 +76,7 @@ Folgende Schritte müssen durchgeführt werden um das automatische Backup V3 ver
 
 5.	Das im Beitrag enthaltene Shell-Script muss in das IoBroker-Verzeichnis unter dem Namen backitup.sh gespeichert  (absoluter Pfad: /opt/iobroker/backitup.sh) und die Berechtigungen sollten auf 777 gesetzt werden. Bei mir läuft das Script mit Admin Rechten wenn ihr bei euch die nötigen Freigaben händisch einstellt ist dies jedoch nicht nötig. Das Script darf nicht in einem Windows Editor bearbeitet werden, da sonst unter Umständen das Script nicht mehr fehlerfrei durchläuft. 
 
-6.	Für die spätere Konfiguration durch VIS muss nun noch der View-Export in euer Projekt importiert werden.
+6.	Für die spätere Konfiguration durch VIS muss nun noch der Widget-Export in euer Projekt importiert werden.
 
 ## 3. Konfiguration:
 

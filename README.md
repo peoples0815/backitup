@@ -1,3 +1,11 @@
+
+English: Meanwhile we have built an adapter for IoBroker from the script, only this will be further developed and supported
+
+Deutsch: Mittlerweile haben wir aus dem Script einen Adapter für IoBroker gebaut, nur dieser wird noch weiter entwickelt und supported
+
+[Backitup Adapter](https://github.com/simatec/iobroker.backitup)
+
+
 # backitupV3
 
 Backitup ist eine Script Zusammenstellung zum zyklischen Sichern einer IoBroker / Homematic -Installation konfigurierbar in VIS 
